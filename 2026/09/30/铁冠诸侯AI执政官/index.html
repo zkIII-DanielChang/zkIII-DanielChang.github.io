@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>铁冠诸侯 · AI 执政官 RegentAgent | Daniel's Blog</title><meta name="author" content="Daniel Chang"><meta name="copyright" content="Daniel Chang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="基于 HelloAgents 框架的 AI 执政官 RegentAgent：观察局势文本、函数调用执行游戏动作，自主操控单文件网页大战略游戏《铁冠诸侯》。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="铁冠诸侯 · AI 执政官 RegentAgent">
+<meta property="og:url" content="https://zkiii-danielchang.github.io/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html">
+<meta property="og:site_name" content="Daniel&#39;s Blog">
+<meta property="og:description" content="基于 HelloAgents 框架的 AI 执政官 RegentAgent：观察局势文本、函数调用执行游戏动作，自主操控单文件网页大战略游戏《铁冠诸侯》。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zkiii-danielchang.github.io/img/cover.svg">
+<meta property="article:published_time" content="2026-09-30T12:08:34.000Z">
+<meta property="article:modified_time" content="2026-09-30T12:08:34.000Z">
+<meta property="article:author" content="Daniel Chang">
+<meta property="article:tag" content="AI Agent">
+<meta property="article:tag" content="HelloAgents">
+<meta property="article:tag" content="Playwright">
+<meta property="article:tag" content="策略游戏">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zkiii-danielchang.github.io/img/cover.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "铁冠诸侯 · AI 执政官 RegentAgent",
+  "url": "https://zkiii-danielchang.github.io/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html",
+  "image": "https://zkiii-danielchang.github.io/img/cover.svg",
+  "datePublished": "2026-09-30T12:08:34.000Z",
+  "dateModified": "2026-09-30T12:08:34.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Daniel Chang",
+      "url": "https://zkiii-danielchang.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.svg"><link rel="canonical" href="https://zkiii-danielchang.github.io/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cinzel@5/index.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '铁冠诸侯 · AI 执政官 RegentAgent',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/heraldic.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/index.html"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/index.html"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/index.html"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/index.html"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/index.html"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/index.html"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/index.html"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover.svg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Daniel's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">铁冠诸侯 · AI 执政官 RegentAgent</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/index.html"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/index.html"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/index.html"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/index.html"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">铁冠诸侯 · AI 执政官 RegentAgent</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-30T12:08:34.000Z" title="发表于 2026-09-30 20:08:34">2026-09-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-30T12:08:34.000Z" title="更新于 2026-09-30 20:08:34">2026-09-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html">项目介绍</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="铁冠诸侯-·-AI-执政官（zkIII-DanielChang-RegentAgent）"><a href="#铁冠诸侯-·-AI-执政官（zkIII-DanielChang-RegentAgent）" class="headerlink" title="铁冠诸侯 · AI 执政官（zkIII-DanielChang-RegentAgent）"></a>铁冠诸侯 · AI 执政官（zkIII-DanielChang-RegentAgent）</h1><blockquote>
+<p>基于 HelloAgents 框架的智能体，自主操控网页大战略游戏《铁冠诸侯》(Lords of Iron Crowns)——发展经济、征兵作战、吞并邻国。</p>
+</blockquote>
+<h2 id="📝-项目简介"><a href="#📝-项目简介" class="headerlink" title="📝 项目简介"></a>📝 项目简介</h2><ul>
+<li><strong>解决什么问题？</strong> 大战略游戏状态复杂、动作多样，传统脚本 AI 难以通盘决策。本项目打通了”LLM 智能体 ↔ 网页游戏”的桥接链路：智能体以中文观测文本理解局势，通过函数调用执行游戏动作，像人类玩家一样逐回合决策。</li>
+<li><strong>有什么特色功能？</strong><ul>
+<li>游戏侧新增 <code>window.GameAgent</code> 桥接 API（局势快照 &#x2F; 动作分发 &#x2F; 回合窗口守卫 &#x2F; 事件弹窗处理），仅做 id→对象 解析，不重复实现任何游戏逻辑；</li>
+<li>Python 侧以 Playwright 无头 Edge（工作线程内运行，Jupyter 与脚本通用；<code>channel=&quot;msedge&quot;</code> 免下载浏览器）+ 本地静态服务驱动真实游戏页面，开箱即用；</li>
+<li>12 个强类型 HelloAgents 工具（<code>game_state</code> + 10 个动作工具 + <code>note_strategy</code> 战略笔记），每回合动作预算防刷屏；</li>
+<li>DeepSeek DSML 兼容层：把 deepseek-chat 的 <code>&lt;｜DSML｜ invoke&gt;</code> 文本工具调用归一化为原生 tool_calls，框架零改动；</li>
+<li>战役全程留档：每回合 AI 决策原文、动作轨迹、国力指标写入 JSONL，定期截图，可完整复盘；</li>
+<li>确定性回放：地图种子固定 + 全逻辑 rng 播种（含撤退目的地），同种子同决策 &#x3D; 同战局。</li>
+</ul>
+</li>
+<li><strong>适用于什么场景？</strong> Hello-Agents 课程毕业设计、游戏 AI 评测、回合制策略游戏的 LLM 基准测试。</li>
+</ul>
+<h2 id="✨-核心功能"><a href="#✨-核心功能" class="headerlink" title="✨ 核心功能"></a>✨ 核心功能</h2><ul>
+<li><input checked="" disabled="" type="checkbox"> 智能体观察：每回合生成紧凑中文局势观测（国力&#x2F;净收入&#x2F;关系&#x2F;军队含合法移动列表与战斗胜率预测&#x2F;战争&#x2F;事件&#x2F;新消息差分&#x2F;战略笔记）</li>
+<li><input checked="" disabled="" type="checkbox"> 智能体行动：10 类游戏动作（宣战&#x2F;征召&#x2F;集结&#x2F;移动&#x2F;解散&#x2F;建造&#x2F;议和&#x2F;强制吞并&#x2F;事件选择&#x2F;结束回合）全部可用</li>
+<li><input checked="" disabled="" type="checkbox"> 事件处理：随机事件弹窗经 <code>pendingEvent</code> 快照暴露，智能体 <code>resolve_event</code> 选择；未处理自动选 primary 选项兜底</li>
+<li><input checked="" disabled="" type="checkbox"> 战役主循环：SimpleAgent 每回合决策 → 工具行动 → 强制推进回合（LLM 失败自动切换策略基线），演示永不中断</li>
+<li><input checked="" disabled="" type="checkbox"> 复盘产物：<code>outputs/campaign.jsonl</code> 轨迹 + <code>outputs/turn_*.png</code> 截图</li>
+</ul>
+<h2 id="🛠️-技术栈"><a href="#🛠️-技术栈" class="headerlink" title="🛠️ 技术栈"></a>🛠️ 技术栈</h2><ul>
+<li>HelloAgents 框架（<code>SimpleAgent</code> + <code>ToolRegistry</code> 函数调用范式）</li>
+<li>桥接：Playwright（无头 Edge）+ Python <code>http.server</code> 本地静态服务</li>
+<li>游戏：《铁冠诸侯》单文件 JS（内置 GameAgent 桥接模块）</li>
+<li>其他依赖：<code>python-dotenv</code>；LLM 为 OpenAI 兼容接口（默认 DeepSeek）</li>
+</ul>
+<h2 id="🚀-快速开始"><a href="#🚀-快速开始" class="headerlink" title="🚀 快速开始"></a>🚀 快速开始</h2><h3 id="环境要求"><a href="#环境要求" class="headerlink" title="环境要求"></a>环境要求</h3><ul>
+<li>Python 3.10+</li>
+<li>系统自带 Edge（Playwright 直接复用，无需 <code>playwright install</code>）；如需 Chrome 请把 <code>src/game_bridge.py</code> 中的 <code>channel=&quot;msedge&quot;</code> 改为 <code>channel=&quot;chrome&quot;</code></li>
+</ul>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置-API-密钥"><a href="#配置-API-密钥" class="headerlink" title="配置 API 密钥"></a>配置 API 密钥</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> .env.example .<span class="built_in">env</span>   <span class="comment"># 编辑 .env，填入 LLM_API_KEY / LLM_MODEL_ID / LLM_BASE_URL</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter lab            <span class="comment"># 打开 main.ipynb 从头执行即可</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以用脚本方式运行等价流程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv; load_dotenv(<span class="string">&quot;.env&quot;</span>)</span><br><span class="line"><span class="keyword">from</span> hello_agents <span class="keyword">import</span> HelloAgentsLLM</span><br><span class="line"><span class="keyword">from</span> src.game_bridge <span class="keyword">import</span> GameBridge</span><br><span class="line"><span class="keyword">from</span> src.game_agent <span class="keyword">import</span> CampaignController</span><br><span class="line"></span><br><span class="line">bridge = GameBridge().start(seed=<span class="number">20260901</span>, player_id=<span class="number">0</span>)   <span class="comment"># 无头浏览器开新局</span></span><br><span class="line">controller = CampaignController(bridge, HelloAgentsLLM(), max_tool_iterations=<span class="number">12</span>)</span><br><span class="line">rows = controller.run_campaign(max_turns=<span class="number">12</span>, screenshot_every=<span class="number">6</span>)   <span class="comment"># 12 回合战役</span></span><br><span class="line">bridge.close()</span><br></pre></td></tr></table></figure>
+
+<h2 id="📖-使用示例"><a href="#📖-使用示例" class="headerlink" title="📖 使用示例"></a>📖 使用示例</h2><p>运行 <code>main.ipynb</code> 后，每回合输出形如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[回合 1/6] 1066年 2月 领地10省 国库3284 人力476 战争0场 动作5次</span><br><span class="line">1066年 2月 | 领地10省 | 国库3284 | 人力476 | 战争0场 | 动作: build, build, raise_army, move_army, end_turn</span><br><span class="line">1066年 4月 | 领地10省 | 国库3927 | 人力211 | 战争1场 | 动作: raise_army, move_army, declare_war, end_turn</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><code>outputs/campaign.jsonl</code> 中每行包含 AI 该回合的决策原文（<code>ai_reply</code>）与全部动作轨迹，可逐回合复盘。</p>
+<h2 id="🎯-项目亮点"><a href="#🎯-项目亮点" class="headerlink" title="🎯 项目亮点"></a>🎯 项目亮点</h2><ul>
+<li><strong>零侵入桥接</strong>：游戏只新增一个 GameAgent 模块（约 300 行），全部游戏逻辑复用既有函数，人类游玩不受影响</li>
+<li><strong>回合窗口守卫</strong>：游戏侧强制”每回合只能 end_turn 一次、动作上限 12 次”，杜绝模型重复结束回合</li>
+<li><strong>永不卡死的主循环</strong>：end_turn &#x2F; resolve_event 双重兜底 + LLM 失败自动切换策略基线，任何模型失误都不中断演示</li>
+<li><strong>规则拒绝 ≠ 工具错误</strong>：游戏拒绝（国库不足等）作为正常反馈返回 success，避免框架熔断器误判</li>
+</ul>
+<h2 id="📊-性能评估"><a href="#📊-性能评估" class="headerlink" title="📊 性能评估"></a>📊 性能评估</h2><p>（2026-09-30 实测，deepseek-chat，6 回合战役）</p>
+<ul>
+<li>单回合决策耗时：约 30<del>60 秒（含 4</del>6 次工具调用）</li>
+<li>6 回合战役：约 5 分钟；12 回合预计 10 分钟左右</li>
+<li>行动合法性：游戏侧校验兜底，非法动作 100% 被拒绝并反馈原因</li>
+<li>零 API 路径：LLM 不可用时自动切换策略基线，6 回合约 20 秒</li>
+</ul>
+<h2 id="🔮-未来计划"><a href="#🔮-未来计划" class="headerlink" title="🔮 未来计划"></a>🔮 未来计划</h2><ul>
+<li><input disabled="" type="checkbox"> 多模态视觉输入：截图直接喂给 VLM 决策</li>
+<li><input disabled="" type="checkbox"> 长期记忆：战局复盘写入记忆，跨战役学习</li>
+<li><input disabled="" type="checkbox"> 范式对比：ReAct &#x2F; Reflection &#x2F; Plan-and-Solve 同局对战评测</li>
+<li><input disabled="" type="checkbox"> 玩家接管：<code>headless=False</code> 实景观看 + 中途切换人工操控</li>
+</ul>
+<h2 id="🤝-贡献指南"><a href="#🤝-贡献指南" class="headerlink" title="🤝 贡献指南"></a>🤝 贡献指南</h2><p>欢迎提出 Issue 和 Pull Request！</p>
+<h2 id="📄-许可证"><a href="#📄-许可证" class="headerlink" title="📄 许可证"></a>📄 许可证</h2><p>GNU Affero General Public License v3.0 (AGPL-3.0)</p>
+<p>完整条款见仓库根目录 <a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/blob/main/LICENSE"><code>LICENSE</code></a>。注意 AGPL-3.0 含网络使用条款：即使仅通过网络提供本程序的服务（例如公开部署的在线可玩版本），使用者同样有权获得完整对应源代码。</p>
+<h2 id="👤-作者"><a href="#👤-作者" class="headerlink" title="👤 作者"></a>👤 作者</h2><ul>
+<li>GitHub: <a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang">@zkIII-DanielChang</a></li>
+<li>Email: <a href="mailto:&#x64;&#97;&#110;&#105;&#x65;&#108;&#x2d;&#x63;&#x68;&#x61;&#x6e;&#103;&#x40;&#108;&#x69;&#118;&#x65;&#46;&#99;&#110;">daniel-chang@live.cn</a></li>
+</ul>
+<h2 id="🙏-致谢"><a href="#🙏-致谢" class="headerlink" title="🙏 致谢"></a>🙏 致谢</h2><p>感谢 Datawhale 社区和 Hello-Agents 项目！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io">Daniel Chang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html">https://zkiii-danielchang.github.io/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://zkiii-danielchang.github.io" target="_blank">Daniel's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI-Agent/index.html">AI Agent</a><a class="post-meta__tags" href="/tags/HelloAgents/index.html">HelloAgents</a><a class="post-meta__tags" href="/tags/Playwright/index.html">Playwright</a><a class="post-meta__tags" href="/tags/%E7%AD%96%E7%95%A5%E6%B8%B8%E6%88%8F/index.html">策略游戏</a></div><div class="post-share"><div class="social-share" data-image="/img/cover.svg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/index.html" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">训练营项目提交与复盘：给旧项目加一个 AI 执政官</div></div><div class="info-2"><div class="info-item-1">GitHub 用户名：zkIII-DanielChang 赛道群内微信昵称：智感2502张大川  选择路线路线三（旧项目 &#x2F; 闭源项目维护展示类） 项目简介《铁冠诸侯》(Lords of Iron Crowns) 是一款基于 JavaScript 的网页大战略游戏，双端适配（桌面 &#x2F; 移动），玩法参照《十字军之王》：经营领地、征兵作战、外交博弈、吞并邻国。游戏本体为单文件 JS（index.html，约 3900 行），是训练营开始前的既有项目。 训练营期间的增量工作是为这个既有游戏从零构建 AI 执政官 RegentAgent——基于 HelloAgents 框架的...</div></div></div></a><a class="pagination-related" href="/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html" title="铁冠诸侯：一个为了好玩而做的大战略游戏"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">铁冠诸侯：一个为了好玩而做的大战略游戏</div></div><div class="info-2"><div class="info-item-1">铁冠诸侯：一个为了好玩而做的大战略游戏 一切开始于一个很朴素的念头：《十字军之王3》里那套”我的封臣的封臣不是我的封臣”的封建玩法，能不能用 JavaScript 在浏览器里跑起来？  先说清楚三件事：这个项目纯粹为了好玩；它会带着三个形态同时参加学校创客空间社团招新的三个赛道——你正在读的这篇博客参加博客赛道，GitHub 上的开源仓库参加开源赛道，计划中的”用一句话操控国家”的 Agent 参加 Agent 赛道。   这是个什么游戏《铁冠诸侯》是一个受 CK3（Crusader Kings III）启发的回合制大战略游戏：你扮演一个中世纪王国的统治者，管领土、收税、征兵、分封、宣战...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/index.html" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官"><img class="cover" src="/img/cover.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-30</div><div class="info-item-2">训练营项目提交与复盘：给旧项目加一个 AI 执政官</div></div><div class="info-2"><div class="info-item-1">GitHub 用户名：zkIII-DanielChang 赛道群内微信昵称：智感2502张大川  选择路线路线三（旧项目 &#x2F; 闭源项目维护展示类） 项目简介《铁冠诸侯》(Lords of Iron Crowns) 是一款基于 JavaScript 的网页大战略游戏，双端适配（桌面 &#x2F; 移动），玩法参照《十字军之王》：经营领地、征兵作战、外交博弈、吞并邻国。游戏本体为单文件 JS（index.html，约 3900 行），是训练营开始前的既有项目。 训练营期间的增量工作是为这个既有游戏从零构建 AI 执政官 RegentAgent——基于 HelloAgents 框架的...</div></div></div></a><a class="pagination-related" href="/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html" title="铁冠诸侯：一个为了好玩而做的大战略游戏"><img class="cover" src="/img/cover.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-27</div><div class="info-item-2">铁冠诸侯：一个为了好玩而做的大战略游戏</div></div><div class="info-2"><div class="info-item-1">铁冠诸侯：一个为了好玩而做的大战略游戏 一切开始于一个很朴素的念头：《十字军之王3》里那套”我的封臣的封臣不是我的封臣”的封建玩法，能不能用 JavaScript 在浏览器里跑起来？  先说清楚三件事：这个项目纯粹为了好玩；它会带着三个形态同时参加学校创客空间社团招新的三个赛道——你正在读的这篇博客参加博客赛道，GitHub 上的开源仓库参加开源赛道，计划中的”用一句话操控国家”的 Agent 参加 Agent 赛道。   这是个什么游戏《铁冠诸侯》是一个受 CK3（Crusader Kings III）启发的回合制大战略游戏：你扮演一个中世纪王国的统治者，管领土、收税、征兵、分封、宣战...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Daniel Chang</div><div class="author-info-description">Daniel Chang 的纹章骑士博客 —— 技术、阅读与旅途见闻</div><div class="site-data"><a href="/archives/index.html"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/index.html"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/index.html"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zkIII-DanielChang" target="_blank" title="GitHub"><i class="fab fa-github" style="color: #1e3a5f;"></i></a><a class="social-icon" href="mailto:daniel-chang@live.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #8b1a1a;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF-%C2%B7-AI-%E6%89%A7%E6%94%BF%E5%AE%98%EF%BC%88zkIII-DanielChang-RegentAgent%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">铁冠诸侯 · AI 执政官（zkIII-DanielChang-RegentAgent）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%9D-%E9%A1%B9%E7%9B%AE%E7%AE%80%E4%BB%8B"><span class="toc-number">1.1.</span> <span class="toc-text">📝 项目简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9C%A8-%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD"><span class="toc-number">1.2.</span> <span class="toc-text">✨ 核心功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E6%8A%80%E6%9C%AF%E6%A0%88"><span class="toc-number">1.3.</span> <span class="toc-text">🛠️ 技术栈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9A%80-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="toc-number">1.4.</span> <span class="toc-text">🚀 快速开始</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="toc-number">1.4.1.</span> <span class="toc-text">环境要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-number">1.4.2.</span> <span class="toc-text">安装依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-API-%E5%AF%86%E9%92%A5"><span class="toc-number">1.4.3.</span> <span class="toc-text">配置 API 密钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.4.4.</span> <span class="toc-text">运行项目</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%96-%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.5.</span> <span class="toc-text">📖 使用示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8E%AF-%E9%A1%B9%E7%9B%AE%E4%BA%AE%E7%82%B9"><span class="toc-number">1.6.</span> <span class="toc-text">🎯 项目亮点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8A-%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0"><span class="toc-number">1.7.</span> <span class="toc-text">📊 性能评估</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%AE-%E6%9C%AA%E6%9D%A5%E8%AE%A1%E5%88%92"><span class="toc-number">1.8.</span> <span class="toc-text">🔮 未来计划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A4%9D-%E8%B4%A1%E7%8C%AE%E6%8C%87%E5%8D%97"><span class="toc-number">1.9.</span> <span class="toc-text">🤝 贡献指南</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%84-%E8%AE%B8%E5%8F%AF%E8%AF%81"><span class="toc-number">1.10.</span> <span class="toc-text">📄 许可证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%91%A4-%E4%BD%9C%E8%80%85"><span class="toc-number">1.11.</span> <span class="toc-text">👤 作者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%99%8F-%E8%87%B4%E8%B0%A2"><span class="toc-number">1.12.</span> <span class="toc-text">🙏 致谢</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/10/05/hello-world/index.html" title="Hello World"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2026/10/05/hello-world/index.html" title="Hello World">Hello World</a><time datetime="2026-10-05T08:55:17.105Z" title="发表于 2026-10-05 16:55:17">2026-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/05/README/index.html" title="无标题"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="无标题"/></a><div class="content"><a class="title" href="/2026/10/05/README/index.html" title="无标题">无标题</a><time datetime="2026-10-05T08:44:20.768Z" title="发表于 2026-10-05 16:44:20">2026-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/05/zkIII-DanielChang/index.html" title="无标题"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="无标题"/></a><div class="content"><a class="title" href="/2026/10/05/zkIII-DanielChang/index.html" title="无标题">无标题</a><time datetime="2026-10-05T08:43:52.915Z" title="发表于 2026-10-05 16:43:52">2026-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/index.html" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="训练营项目提交与复盘：给旧项目加一个 AI 执政官"/></a><div class="content"><a class="title" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/index.html" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官">训练营项目提交与复盘：给旧项目加一个 AI 执政官</a><time datetime="2026-09-30T12:35:12.000Z" title="发表于 2026-09-30 20:35:12">2026-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html" title="铁冠诸侯 · AI 执政官 RegentAgent"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="铁冠诸侯 · AI 执政官 RegentAgent"/></a><div class="content"><a class="title" href="/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html" title="铁冠诸侯 · AI 执政官 RegentAgent">铁冠诸侯 · AI 执政官 RegentAgent</a><time datetime="2026-09-30T12:08:34.000Z" title="发表于 2026-09-30 20:08:34">2026-09-30</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Daniel Chang</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div></div></body></html>

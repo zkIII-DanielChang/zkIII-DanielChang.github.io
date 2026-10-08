@@ -1,0 +1,404 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Daniel's Blog | Daniel's Blog</title><meta name="author" content="Daniel Chang"><meta name="copyright" content="Daniel Chang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="GitHub 用户名：zkIII-DanielChang 赛道群内微信昵称：智感2502张大川  选择路线路线三（旧项目 &#x2F; 闭源项目维护展示类） 项目简介《铁冠诸侯》(Lords of Iron Crowns) 是一款基于 JavaScript 的网页大战略游戏，双端适配（桌面 &#x2F; 移动），玩法参照《十字军之王》：经营领地、征兵作战、外交博弈、吞并邻国。游戏本体为单文件 JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Daniel&#39;s Blog">
+<meta property="og:url" content="https://zkiii-danielchang.github.io/2026/10/05/zkIII-DanielChang/index.html">
+<meta property="og:site_name" content="Daniel&#39;s Blog">
+<meta property="og:description" content="GitHub 用户名：zkIII-DanielChang 赛道群内微信昵称：智感2502张大川  选择路线路线三（旧项目 &#x2F; 闭源项目维护展示类） 项目简介《铁冠诸侯》(Lords of Iron Crowns) 是一款基于 JavaScript 的网页大战略游戏，双端适配（桌面 &#x2F; 移动），玩法参照《十字军之王》：经营领地、征兵作战、外交博弈、吞并邻国。游戏本体为单文件 JS">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zkiii-danielchang.github.io/img/cover.svg">
+<meta property="article:published_time" content="2026-10-05T08:43:52.915Z">
+<meta property="article:modified_time" content="2026-09-30T12:35:12.966Z">
+<meta property="article:author" content="Daniel Chang">
+<meta property="article:tag" content="Daniel Chang, 博客, 技术, 阅读">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zkiii-danielchang.github.io/img/cover.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "",
+  "url": "https://zkiii-danielchang.github.io/2026/10/05/zkIII-DanielChang/index.html",
+  "image": "https://zkiii-danielchang.github.io/img/cover.svg",
+  "datePublished": "2026-10-05T08:43:52.915Z",
+  "dateModified": "2026-09-30T12:35:12.966Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Daniel Chang",
+      "url": "https://zkiii-danielchang.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.svg"><link rel="canonical" href="https://zkiii-danielchang.github.io/2026/10/05/zkIII-DanielChang/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cinzel@5/index.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Daniel\'s Blog',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/heraldic.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/index.html"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/index.html"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/index.html"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/index.html"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/index.html"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/index.html"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/index.html"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover.svg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Daniel's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">Daniel's Blog</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/index.html"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/index.html"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/index.html"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/index.html"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">无标题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-05T08:43:52.915Z" title="发表于 2026-10-05 16:43:52">2026-10-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-30T12:35:12.966Z" title="更新于 2026-09-30 20:35:12">2026-09-30</time></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="GitHub-用户名：zkIII-DanielChang"><a href="#GitHub-用户名：zkIII-DanielChang" class="headerlink" title="GitHub 用户名：zkIII-DanielChang"></a>GitHub 用户名：zkIII-DanielChang</h1><blockquote>
+<p>赛道群内微信昵称：智感2502张大川</p>
+</blockquote>
+<h2 id="选择路线"><a href="#选择路线" class="headerlink" title="选择路线"></a>选择路线</h2><p>路线三（旧项目 &#x2F; 闭源项目维护展示类）</p>
+<h2 id="项目简介"><a href="#项目简介" class="headerlink" title="项目简介"></a>项目简介</h2><p><strong>《铁冠诸侯》(Lords of Iron Crowns)</strong> 是一款基于 JavaScript 的网页大战略游戏，双端适配（桌面 &#x2F; 移动），玩法参照《十字军之王》：经营领地、征兵作战、外交博弈、吞并邻国。游戏本体为单文件 JS（<code>index.html</code>，约 3900 行），是训练营开始前的既有项目。</p>
+<p><strong>训练营期间的增量工作</strong>是为这个既有游戏从零构建 <strong>AI 执政官 <code>RegentAgent</code></strong>——基于 HelloAgents 框架的 LLM 智能体，让它像人类玩家一样自主操控游戏：每回合读取中文局势观测，通过函数调用执行游戏动作，独立完成一场从发展到征战的多回合战役。</p>
+<p>这个增量解决的真实问题是：大战略游戏状态复杂、动作空间多样，传统脚本 AI 难以通盘决策。本项目打通了「LLM 智能体 ↔ 真实网页游戏」的完整桥接链路，既让旧项目获得了可展示的新能力，也构成一个回合制策略游戏的 LLM 决策基准测试环境。</p>
+<h2 id="项目-PR"><a href="#项目-PR" class="headerlink" title="项目 &#x2F; PR"></a>项目 &#x2F; PR</h2><ul>
+<li>仓库：<a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns">zkIII-DanielChang&#x2F;Lords-of-Iron-Crowns</a></li>
+<li>增量代码目录：<a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/tree/main/zkIII-DanielChang-RegentAgent"><code>zkIII-DanielChang-RegentAgent/</code></a></li>
+<li>Release：<a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/releases/tag/release">release</a> ／ <a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/releases/tag/pre_release">pre_release</a></li>
+<li>在线 Demo（点开即玩，无需下载 &#x2F; 注册）：<ul>
+<li>游戏全屏入口：<a href="https://zkiii-danielchang.github.io/game/index.html">https://zkiii-danielchang.github.io/game/</a></li>
+<li>项目介绍博客（正文内嵌同一份游戏，读完即可直接试玩，阅读与试玩零跳转）：《铁冠诸侯：一个为了好玩而做的大战略游戏》<a href="https://zkiii-danielchang.github.io/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html">https://zkiii-danielchang.github.io/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/</a></li>
+</ul>
+</li>
+<li>Agent 运行演示：克隆仓库后执行 <code>zkIII-DanielChang-RegentAgent/main.ipynb</code>（从头运行即可），或按该目录 <code>README.md</code> 的脚本方式启动；每回合会打印决策摘要与国力变化，示例见下文「运行输出示例」</li>
+<li>运行录屏：⚠️ 待补（可选项，建议补一段 6 回合战役录屏，约 5 分钟；本项目已具备在线可玩演示与完整 commit diff，录屏用于进一步佐证 AI 自主决策过程）</li>
+</ul>
+<h2 id="训练营期间的主要增量"><a href="#训练营期间的主要增量" class="headerlink" title="训练营期间的主要增量"></a>训练营期间的主要增量</h2><p>增量以单个提交 <code>e5d0b29</code>「添加Agent」为主体，共 <strong>26 个文件 &#x2F; 7404 行新增</strong>，另有 <code>1e9f348</code>「修改README」补充文档。具体分为四层：</p>
+<p><strong>1. 游戏侧：新增 <code>window.GameAgent</code> 桥接 API（约 300 行）</strong></p>
+<p>在不改动任何既有游戏逻辑的前提下，为单文件 JS 游戏增加一个桥接模块，提供四类能力：局势快照导出、动作分发、回合窗口守卫、事件弹窗处理。设计上只做 <code>id → 对象</code> 解析后转调既有函数，不重复实现游戏规则，因此人类正常游玩完全不受影响。</p>
+<p><strong>2. Python 侧：新建 <code>RegentAgent</code> 完整项目</strong></p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>src/game_bridge.py</code></td>
+<td>Playwright 无头 Edge + Python 本地静态服务，驱动真实游戏页面；复用系统自带 Edge（<code>channel=&quot;msedge&quot;</code>），免下载浏览器</td>
+</tr>
+<tr>
+<td><code>src/game_tools.py</code></td>
+<td>12 个强类型 HelloAgents 工具：<code>game_state</code> + 10 个动作工具 + <code>note_strategy</code> 战略笔记；每回合动作预算防刷屏</td>
+</tr>
+<tr>
+<td><code>src/prompts.py</code></td>
+<td>生成紧凑中文局势观测：国力 &#x2F; 净收入 &#x2F; 关系 &#x2F; 军队（含合法移动列表与战斗胜率预测）&#x2F; 战争 &#x2F; 事件 &#x2F; 新消息差分 &#x2F; 战略笔记</td>
+</tr>
+<tr>
+<td><code>src/game_agent.py</code></td>
+<td><code>CampaignController</code> 战役主循环：每回合决策 → 工具行动 → 强制推进回合</td>
+</tr>
+<tr>
+<td><code>src/compat.py</code></td>
+<td>DeepSeek DSML 兼容层：把 <code>deepseek-chat</code> 的 <code>&lt;｜DSML｜ invoke&gt;</code> 文本工具调用归一化为原生 <code>tool_calls</code>，框架零改动</td>
+</tr>
+<tr>
+<td><code>src/e2e_test.py</code></td>
+<td>端到端测试</td>
+</tr>
+<tr>
+<td><code>main.ipynb</code></td>
+<td>可从头执行的完整演示</td>
+</tr>
+</tbody></table>
+<p><strong>3. 可复现性：确定性回放</strong></p>
+<p>地图种子固定 + 全逻辑 rng 播种（含撤退目的地等随机分支），做到「同种子 + 同决策 &#x3D; 同战局」，使 AI 决策效果可被对照评估。</p>
+<p><strong>4. 过程留档：战役全程可复盘</strong></p>
+<p>每回合的 AI 决策原文（<code>ai_reply</code>）、完整动作轨迹、国力指标写入 <code>outputs/campaign.jsonl</code>，并按间隔截图 <code>outputs/turn_*.png</code>。仓库中保留的是精选副本，位于 <code>outputs/demo/</code>（<code>.gitignore</code> 默认排除全部运行时产物，仅放行该目录，避免体积膨胀与密钥泄露）。</p>
+<p><strong>实测性能</strong>（2026-09-30，<code>deepseek-chat</code>，6 回合战役）：</p>
+<ul>
+<li>单回合决策耗时约 30<del>60 秒（含 4</del>6 次工具调用）</li>
+<li>6 回合战役约 5 分钟；12 回合预计 10 分钟左右</li>
+<li>非法动作 100% 被游戏侧校验拒绝并返回原因</li>
+<li>零 API 路径：LLM 不可用时自动切换策略基线，6 回合约 20 秒</li>
+</ul>
+<h2 id="过程记录"><a href="#过程记录" class="headerlink" title="过程记录"></a>过程记录</h2><p><strong>commit</strong>（均为训练营期间，2026-09-28 ~ 09-30）：</p>
+<table>
+<thead>
+<tr>
+<th>commit</th>
+<th>时间</th>
+<th>内容</th>
+<th>改动量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>66f858a</code></td>
+<td>09-28 16:15</td>
+<td>游戏本体入库</td>
+<td>1 文件 &#x2F; 3878 行</td>
+</tr>
+<tr>
+<td><code>d4e91dc</code></td>
+<td>09-28 16:38</td>
+<td>LICENSE + README</td>
+<td>2 文件 &#x2F; 663 行</td>
+</tr>
+<tr>
+<td><code>3493e09</code></td>
+<td>09-28 17:09</td>
+<td>提交登记草稿</td>
+<td>1 文件 &#x2F; 37 行</td>
+</tr>
+<tr>
+<td><code>e5d0b29</code></td>
+<td>09-30 19:02</td>
+<td><strong>添加 Agent（本次核心增量）</strong></td>
+<td>26 文件 &#x2F; 7404 行</td>
+</tr>
+<tr>
+<td><code>1e9f348</code></td>
+<td>09-30 19:13</td>
+<td>修改 README</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<ul>
+<li>提交历史：<a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/commits/main">https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/commits/main</a></li>
+<li>核心增量 diff：<code>e5d0b29</code></li>
+<li><strong>release</strong>：已发布 <code>release</code> 与 <code>pre_release</code> 两个版本标签</li>
+<li><strong>决策轨迹</strong>：<a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/blob/main/zkIII-DanielChang-RegentAgent/outputs/demo/campaign.jsonl"><code>outputs/demo/campaign.jsonl</code></a>——逐回合记录 AI 决策原文（<code>ai_reply</code>）、完整动作轨迹与国力指标，可直接验证是 LLM 在真实决策而非脚本回放</li>
+<li><strong>运行截图</strong>：<a target="_blank" rel="noopener" href="https://github.com/zkIII-DanielChang/Lords-of-Iron-Crowns/tree/main/zkIII-DanielChang-RegentAgent/outputs/demo"><code>outputs/demo/</code></a> 下的 <code>turn_0003.png</code>、<code>turn_0006.png</code>、<code>turn_0007.png</code>、<code>turn_0012.png</code>，对应战役第 3 &#x2F; 6 &#x2F; 7 &#x2F; 12 回合的实际战局</li>
+<li><strong>开发日志</strong>：见项目介绍博客《开发历程》一节（下方为摘要）</li>
+</ul>
+<p><strong>游戏本体开发历程</strong>（摘自博客 timeline，可证明本项目为既有项目、并展示其架构演进）：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>阶段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-09-01</td>
+<td>立项与骨架</td>
+<td>确定分阶段路线；主循环、时间系统、四层画布架构搭好，空白地图能跑回合</td>
+</tr>
+<tr>
+<td>2026-09-06</td>
+<td>系统爆发周</td>
+<td>大地图（Voronoi 省份、国家配色、三级边界、LOD 文字）、UI 信息系统、国家经济、军事战争、人物封臣链一口气落地</td>
+</tr>
+<tr>
+<td>2026-09-12</td>
+<td>手机适配与存档</td>
+<td>世界地图竖置，底部 Tab + 三档抽屉的竖屏界面重做；localStorage 存档系统上线，刷新不丢进度</td>
+</tr>
+<tr>
+<td>2026-09-13</td>
+<td>军事打磨</td>
+<td>一键全军集结（自动全领土征兵）、军队合并、收复被占领土、进攻目标红绿框可视化</td>
+</tr>
+<tr>
+<td>2026-09-27</td>
+<td>定名 + 博客发布</td>
+<td>告别曾用名「王国风云」，正式定名《铁冠诸侯》；项目介绍博客上线并内嵌可玩版本</td>
+</tr>
+</tbody></table>
+<p><strong>训练营期间增量</strong>：<code>e5d0b29</code>（09-30 19:02）落地 AI 执政官 <code>RegentAgent</code>，<code>1e9f348</code>（09-30 19:13）补充文档。</p>
+<p>值得注意的是，09-27 发布的博客在「三赛道参赛声明」中，把 Agent 赛道明确写为「<strong>计划中</strong>」的「用一句话操控国家」，并给出了设想中的自然语言下旨示例。而 <code>RegentAgent</code> 的实际落地时间是 09-30。这一时间差本身就构成「Agent 是训练营期间从计划到实现的真实增量」的可验证证据。</p>
+<p><strong>运行输出示例</strong>（每回合决策与国力变化）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[回合 1/6] 1066年 2月 领地10省 国库3284 人力476 战争0场 动作5次</span><br><span class="line">1066年 2月 | 领地10省 | 国库3284 | 人力476 | 战争0场 | 动作: build, build, raise_army, move_army, end_turn</span><br><span class="line">1066年 4月 | 领地10省 | 国库3927 | 人力211 | 战争1场 | 动作: raise_army, move_army, declare_war, end_turn</span><br></pre></td></tr></table></figure>
+
+<h2 id="个人角色与项目理解"><a href="#个人角色与项目理解" class="headerlink" title="个人角色与项目理解"></a>个人角色与项目理解</h2><p>单人项目，游戏本体与 AI 执政官均由本人独立完成，无协作分工问题。本次训练营期间负责的是 Agent 层从零到可运行的全部工作，包括游戏侧桥接 API 的设计与嵌入。</p>
+<h3 id="对既有项目（游戏本体）架构的理解"><a href="#对既有项目（游戏本体）架构的理解" class="headerlink" title="对既有项目（游戏本体）架构的理解"></a>对既有项目（游戏本体）架构的理解</h3><p>游戏本体是单文件 JS（<code>index.html</code>，约 3900 行），零构建工具、零 npm 依赖、零后端，丢到任何静态服务器上即可运行，手机竖屏单手可操作。其架构分三层：</p>
+<ul>
+<li><strong>渲染层：四张叠放的 Canvas</strong>——地图层（低频重绘的省份 &#x2F; 边界 &#x2F; 文字）、单位层（逐帧的兵牌）、特效层（选中呼吸动画）、UI 层（悬停高亮 &#x2F; 移动范围）。每层独立脏标记，相机平移缩放只在需要时重绘。</li>
+<li><strong>数据层：一切皆 <code>GameState</code></strong>——省份是多边形 + 邻接表，国家是省份集合 + 财政，人物靠 <code>liegeId</code> 串成封臣链：</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;character&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;亨利·维斯特兰&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;duke&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">43.25</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;dip&quot;</span><span class="punctuation">:</span> <span class="number">12</span><span class="punctuation">,</span> <span class="attr">&quot;mar&quot;</span><span class="punctuation">:</span> <span class="number">17</span><span class="punctuation">,</span> <span class="attr">&quot;ste&quot;</span><span class="punctuation">:</span> <span class="number">9</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;traits&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;勇猛&quot;</span><span class="punctuation">,</span> <span class="string">&quot;精明&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;liegeId&quot;</span><span class="punctuation">:</span> <span class="number">3</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>  顺着 <code>liegeId</code> 往上爬就是「伯爵→公爵→国王→皇帝」的完整链条；人物死亡时，头衔、直辖领地和所有附庸的效忠对象自动指向继承人。</p>
+<ul>
+<li><strong>存档层：地图几何不存档</strong>——由种子确定性重建，存档只序列化可变状态（归属、建筑、人物、外交矩阵、军队、战争、财政），单份约 27KB，损坏时可静默降级新开一局。</li>
+</ul>
+<p>游戏系统覆盖：程序化大地图（Voronoi 切块生成省份，海陆 &#x2F; 地形 &#x2F; 发展度由种子确定性生成）、封君封臣四级链条、国家经济（国库 &#x2F; 人力 &#x2F; 稳定度逐月结算，税收 &#x3D; 发展度 × 地形修正 × 建筑加成，税务所 &#x2F; 兵营 &#x2F; 市场 &#x2F; 要塞四种建筑）、军事战争（宣战理由、征兵集结、兵牌移动、地形防守、围城破城、战争分数、强制割地、收复失地）、人物与继承、本地存档、竖屏界面。</p>
+<p><strong>正是这套「一切皆 GameState + 系统已是可编程接口」的数据驱动设计，使 Agent 得以低成本接入</strong>——桥接层只需读取 <code>GameState</code> 生成观测、按 <code>id → 对象</code> 解析后转调既有动作函数，无需为 AI 重写任何游戏规则。这是本次增量能够「零侵入」落地的架构前提。</p>
+<h3 id="新增量（RegentAgent）数据链路"><a href="#新增量（RegentAgent）数据链路" class="headerlink" title="新增量（RegentAgent）数据链路"></a>新增量（RegentAgent）数据链路</h3><p>自上而下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LLM (deepseek-chat)</span><br><span class="line">  ↓ 工具调用（compat.py 归一化 DSML → tool_calls）</span><br><span class="line">HelloAgents SimpleAgent + ToolRegistry（12 个强类型工具）</span><br><span class="line">  ↓</span><br><span class="line">CampaignController（战役主循环 / 兜底策略）</span><br><span class="line">  ↓</span><br><span class="line">GameBridge（Playwright 无头 Edge + 本地静态服务）</span><br><span class="line">  ↓ 调用 window.GameAgent</span><br><span class="line">游戏本体 index.html（既有逻辑，零改动）</span><br></pre></td></tr></table></figure>
+
+<p>关键设计取舍：</p>
+<ul>
+<li><strong>零侵入桥接</strong>：游戏侧只加一个约 300 行的 <code>GameAgent</code> 模块，全部复用既有游戏函数，避免逻辑双写导致规则不一致，也保证人类游玩不受影响。</li>
+<li><strong>回合窗口守卫</strong>：游戏侧强制「每回合只能 <code>end_turn</code> 一次、动作上限 12 次」，从协议层杜绝模型重复结束回合或刷屏。</li>
+<li><strong>永不卡死的主循环</strong>：<code>end_turn</code> &#x2F; <code>resolve_event</code> 双重兜底 + LLM 失败自动切换策略基线，任何模型失误都不中断演示；未处理的事件弹窗自动选 primary 选项。</li>
+<li><strong>规则拒绝 ≠ 工具错误</strong>：游戏侧的正常拒绝（如国库不足）作为 <code>success</code> 反馈返回而非抛错，避免 HelloAgents 框架的熔断器把游戏规则误判为工具故障。</li>
+</ul>
+<h2 id="学到的东西"><a href="#学到的东西" class="headerlink" title="学到的东西"></a>学到的东西</h2><ul>
+<li>掌握了 HelloAgents 的 <code>SimpleAgent</code> + <code>ToolRegistry</code> 函数调用范式，理解了工具 schema 设计对模型行为的影响</li>
+<li>解决了非原生支持工具调用的模型（DeepSeek DSML 文本协议）与框架的对接问题，做到框架零改动</li>
+<li>用 Playwright 打通 Python 与真实网页的双向通信，理解了「浏览器自动化驱动既有前端」这条低成本改造路径</li>
+<li>体会到 LLM 智能体的可靠性主要靠工程约束而非模型能力：动作预算、回合守卫、多重兜底才是演示不中断的真正原因</li>
+</ul>
+<h2 id="后续计划"><a href="#后续计划" class="headerlink" title="后续计划"></a>后续计划</h2><ul>
+<li><input disabled="" type="checkbox"> 多模态视觉输入：截图直接喂给 VLM 决策</li>
+<li><input disabled="" type="checkbox"> 长期记忆：战局复盘写入记忆，跨战役学习</li>
+<li><input disabled="" type="checkbox"> 范式对比：ReAct &#x2F; Reflection &#x2F; Plan-and-Solve 同局对战评测</li>
+<li><input disabled="" type="checkbox"> 玩家接管：<code>headless=False</code> 实景观看 + 中途切换人工操控</li>
+</ul>
+<h2 id="其他说明"><a href="#其他说明" class="headerlink" title="其他说明"></a>其他说明</h2><p><strong>关于本项目的性质</strong>：游戏本体《铁冠诸侯》是训练营开始前的既有项目，本次选择路线三（旧项目维护展示类）。训练营期间的实际增量为 AI 执政官 <code>RegentAgent</code> 全套代码（26 文件 &#x2F; 7404 行）及游戏侧 <code>GameAgent</code> 桥接模块，对应提交 <code>e5d0b29</code>、<code>1e9f348</code>，全部为本人独立编写。</p>
+<p><strong>关于提交粒度</strong>：核心增量集中在单个提交 <code>e5d0b29</code> 中，是因为 Agent 项目需要与游戏侧桥接 API 同时到位才能运行，开发期间在本地完成联调后一次性入库。为弥补过程记录，本项目提供了三类可独立验证的增量证据：<code>campaign.jsonl</code> 的逐回合 AI 决策原文、<code>turn_*.png</code> 的运行截图、以及已发布的 <code>release</code> &#x2F; <code>pre_release</code> 版本标签。前两类需按上文提示放入 <code>outputs/demo/</code> 白名单目录并推送后才可在线查看。</p>
+<p><strong>关于 AI 辅助</strong>：开发过程中使用了 AI 辅助编码，所有代码均经本人审查、理解并实际联调通过，可现场解释任一模块的实现思路与设计取舍。</p>
+<p><strong>工程规范</strong>：AGPL-3.0 许可证（根目录 <code>LICENSE</code>）、<code>requirements.txt</code> 依赖清单、<code>.env.example</code> 配置模板、<code>.gitignore</code>、GitHub Actions CI（<code>.github/workflows/ci.yml</code>：push &#x2F; PR 自动在 ubuntu + windows × Python 3.10 &#x2F; 3.12 四组合下跑测试，外加导入与类型注解健全性检查）、<code>tests/</code> 下 140 个 pytest 单元测试（覆盖 DSML 解析、观测文本格式化、工具预算与规则拒绝、策略基线、零 API 主循环，全部不依赖浏览器与 LLM）、<code>src/e2e_test.py</code> 端到端冒烟测试。</p>
+<p><strong>致谢</strong>：感谢 Datawhale 社区和 Hello-Agents 项目。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io">Daniel Chang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io/2026/10/05/zkIII-DanielChang/index.html">https://zkiii-danielchang.github.io/2026/10/05/zkIII-DanielChang/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://zkiii-danielchang.github.io" target="_blank">Daniel's Blog</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/cover.svg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/10/05/README/index.html" title=""><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2"></div></div><div class="info-2"><div class="info-item-1">铁冠诸侯 · AI 执政官（zkIII-DanielChang-RegentAgent） 基于 HelloAgents 框架的智能体，自主操控网页大战略游戏《铁冠诸侯》(Lords of Iron Crowns)——发展经济、征兵作战、吞并邻国。  📝 项目简介 解决什么问题？ 大战略游戏状态复杂、动作多样，传统脚本 AI 难以通盘决策。本项目打通了”LLM 智能体 ↔ 网页游戏”的桥接链路：智能体以中文观测文本理解局势，通过函数调用执行游戏动作，像人类玩家一样逐回合决策。 有什么特色功能？ 游戏侧新增 window.GameAgent 桥接 API（局势快照 &#x2F; 动作分发 ...</div></div></div></a><a class="pagination-related" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/index.html" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">训练营项目提交与复盘：给旧项目加一个 AI 执政官</div></div><div class="info-2"><div class="info-item-1">GitHub 用户名：zkIII-DanielChang 赛道群内微信昵称：智感2502张大川  选择路线路线三（旧项目 &#x2F; 闭源项目维护展示类） 项目简介《铁冠诸侯》(Lords of Iron Crowns) 是一款基于 JavaScript 的网页大战略游戏，双端适配（桌面 &#x2F; 移动），玩法参照《十字军之王》：经营领地、征兵作战、外交博弈、吞并邻国。游戏本体为单文件 JS（index.html，约 3900 行），是训练营开始前的既有项目。 训练营期间的增量工作是为这个既有游戏从零构建 AI 执政官 RegentAgent——基于 HelloAgents 框架的...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Daniel Chang</div><div class="author-info-description">Daniel Chang 的纹章骑士博客 —— 技术、阅读与旅途见闻</div><div class="site-data"><a href="/archives/index.html"><div class="headline">文章</div><div class="length-num">7</div></a><a href="/tags/index.html"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/index.html"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zkIII-DanielChang" target="_blank" title="GitHub"><i class="fab fa-github" style="color: #1e3a5f;"></i></a><a class="social-icon" href="mailto:daniel-chang@live.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #8b1a1a;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#GitHub-%E7%94%A8%E6%88%B7%E5%90%8D%EF%BC%9AzkIII-DanielChang"><span class="toc-number">1.</span> <span class="toc-text">GitHub 用户名：zkIII-DanielChang</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E8%B7%AF%E7%BA%BF"><span class="toc-number">1.1.</span> <span class="toc-text">选择路线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%AE%80%E4%BB%8B"><span class="toc-number">1.2.</span> <span class="toc-text">项目简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE-PR"><span class="toc-number">1.3.</span> <span class="toc-text">项目 &#x2F; PR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83%E8%90%A5%E6%9C%9F%E9%97%B4%E7%9A%84%E4%B8%BB%E8%A6%81%E5%A2%9E%E9%87%8F"><span class="toc-number">1.4.</span> <span class="toc-text">训练营期间的主要增量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95"><span class="toc-number">1.5.</span> <span class="toc-text">过程记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%AA%E4%BA%BA%E8%A7%92%E8%89%B2%E4%B8%8E%E9%A1%B9%E7%9B%AE%E7%90%86%E8%A7%A3"><span class="toc-number">1.6.</span> <span class="toc-text">个人角色与项目理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E6%97%A2%E6%9C%89%E9%A1%B9%E7%9B%AE%EF%BC%88%E6%B8%B8%E6%88%8F%E6%9C%AC%E4%BD%93%EF%BC%89%E6%9E%B6%E6%9E%84%E7%9A%84%E7%90%86%E8%A7%A3"><span class="toc-number">1.6.1.</span> <span class="toc-text">对既有项目（游戏本体）架构的理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E5%A2%9E%E9%87%8F%EF%BC%88RegentAgent%EF%BC%89%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF"><span class="toc-number">1.6.2.</span> <span class="toc-text">新增量（RegentAgent）数据链路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%A6%E5%88%B0%E7%9A%84%E4%B8%9C%E8%A5%BF"><span class="toc-number">1.7.</span> <span class="toc-text">学到的东西</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E7%BB%AD%E8%AE%A1%E5%88%92"><span class="toc-number">1.8.</span> <span class="toc-text">后续计划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E8%AF%B4%E6%98%8E"><span class="toc-number">1.9.</span> <span class="toc-text">其他说明</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/10/05/hello-world/index.html" title="Hello World"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2026/10/05/hello-world/index.html" title="Hello World">Hello World</a><time datetime="2026-10-05T08:55:17.105Z" title="发表于 2026-10-05 16:55:17">2026-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/05/README/index.html" title="无标题"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="无标题"/></a><div class="content"><a class="title" href="/2026/10/05/README/index.html" title="无标题">无标题</a><time datetime="2026-10-05T08:44:20.768Z" title="发表于 2026-10-05 16:44:20">2026-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/05/zkIII-DanielChang/index.html" title="无标题"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="无标题"/></a><div class="content"><a class="title" href="/2026/10/05/zkIII-DanielChang/index.html" title="无标题">无标题</a><time datetime="2026-10-05T08:43:52.915Z" title="发表于 2026-10-05 16:43:52">2026-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/index.html" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="训练营项目提交与复盘：给旧项目加一个 AI 执政官"/></a><div class="content"><a class="title" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/index.html" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官">训练营项目提交与复盘：给旧项目加一个 AI 执政官</a><time datetime="2026-09-30T12:35:12.000Z" title="发表于 2026-09-30 20:35:12">2026-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html" title="铁冠诸侯 · AI 执政官 RegentAgent"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="铁冠诸侯 · AI 执政官 RegentAgent"/></a><div class="content"><a class="title" href="/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/index.html" title="铁冠诸侯 · AI 执政官 RegentAgent">铁冠诸侯 · AI 执政官 RegentAgent</a><time datetime="2026-09-30T12:08:34.000Z" title="发表于 2026-09-30 20:08:34">2026-09-30</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Daniel Chang</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div></div></body></html>
