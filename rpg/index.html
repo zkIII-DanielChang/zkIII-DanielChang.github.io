@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>3D RPG 冒险</title>
+<style>
+/* SECTION: reset */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',system-ui,sans-serif;touch-action:none;user-select:none}
+canvas{display:block}
+
+/* SECTION: loading */
+#loading{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#e0e0e0;transition:opacity .5s}
+#loading h1{font-size:2.5em;color:#f0c040;text-shadow:0 0 20px rgba(240,192,64,.5);margin-bottom:20px;letter-spacing:4px}
+#loading .bar{width:300px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+#loading .bar-fill{width:0%;height:100%;background:linear-gradient(90deg,#f0c040,#ff6b6b);border-radius:3px;transition:width .3s}
+#loading p{margin-top:15px;font-size:.9em;color:#888}
+
+/* SECTION: hud */
+#hud{position:fixed;top:0;left:0;right:0;pointer-events:none;z-index:100;padding:12px}
+.hud-top{display:flex;gap:12px;align-items:flex-start}
+.player-info{background:rgba(0,0,0,.6);border-radius:12px;padding:10px 14px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);min-width:200px}
+.player-name{color:#f0c040;font-weight:700;font-size:.95em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.player-name .lv{background:#f0c040;color:#1a1a2e;font-size:.7em;padding:1px 6px;border-radius:8px}
+.bar-group{display:flex;flex-direction:column;gap:4px}
+.bar-row{display:flex;align-items:center;gap:6px}
+.bar-label{font-size:.7em;font-weight:600;width:22px;text-align:center}
+.bar-label.hp{color:#ff6b6b}
+.bar-label.mp{color:#6bb5ff}
+.bar-label.exp{color:#a0e060}
+.bar-track{flex:1;height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;min-width:120px}
+.bar-fill-hp{height:100%;background:linear-gradient(90deg,#ff4444,#ff6b6b);border-radius:4px;transition:width .3s}
+.bar-fill-mp{height:100%;background:linear-gradient(90deg,#4488ff,#6bb5ff);border-radius:4px;transition:width .3s}
+.bar-fill-exp{height:100%;background:linear-gradient(90deg,#60c020,#a0e060);border-radius:4px;transition:width .3s}
+.bar-text{font-size:.65em;color:#ccc;min-width:50px;text-align:right}
+
+/* SECTION: minimap */
+.minimap-wrap{margin-left:auto;background:rgba(0,0,0,.6);border-radius:12px;padding:6px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1)}
+.minimap-wrap canvas{border-radius:8px;display:block}
+
+/* SECTION: quest */
+.quest-panel{position:fixed;top:80px;right:12px;background:rgba(0,0,0,.6);border-radius:12px;padding:10px 14px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);z-index:100;pointer-events:none;max-width:220px}
+.quest-title{color:#f0c040;font-size:.8em;font-weight:700;margin-bottom:4px}
+.quest-desc{color:#ccc;font-size:.75em;line-height:1.4}
+.quest-progress{color:#a0e060;font-size:.7em;margin-top:4px}
+
+/* SECTION: npc-hint */
+#npc-hint{position:fixed;pointer-events:none;z-index:160;display:none;text-align:center}
+#npc-hint .hint-text{background:rgba(0,0,0,.7);color:#f0c040;padding:4px 10px;border-radius:8px;font-size:.8em;font-weight:600;white-space:nowrap;border:1px solid rgba(240,192,64,.4)}
+
+/* SECTION: dialogue */
+#dialogue{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:min(600px,90%);background:rgba(10,10,30,.9);border-radius:16px;padding:16px 20px;padding-bottom:max(16px,env(safe-area-inset-bottom));backdrop-filter:blur(12px);border:1px solid rgba(240,192,64,.3);z-index:280;display:none;pointer-events:auto}
+#dialogue .npc-name{color:#f0c040;font-weight:700;font-size:.95em;margin-bottom:6px}
+#dialogue .npc-text{color:#e0e0e0;font-size:.9em;line-height:1.6}
+#dialogue .dialogue-hint{color:#888;font-size:.75em;margin-top:8px;text-align:right}
+
+/* SECTION: combat-log */
+.combat-log{position:fixed;bottom:20px;left:12px;z-index:100;pointer-events:none;display:flex;flex-direction:column;gap:3px;max-height:150px;overflow:hidden}
+.combat-log .log-entry{color:#ccc;font-size:.75em;background:rgba(0,0,0,.5);padding:3px 8px;border-radius:6px;animation:logFade 3s forwards;white-space:nowrap}
+.log-entry.damage{color:#ff6b6b}
+.log-entry.heal{color:#6be06b}
+.log-entry.info{color:#6bb5ff}
+.log-entry.levelup{color:#f0c040;font-weight:700}
+@keyframes logFade{0%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+
+/* SECTION: touch-controls */
+#joystick-zone{position:fixed;top:0;left:0;width:50%;height:100%;z-index:140;pointer-events:auto;display:none}
+.joystick-base{width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.12);border:3px solid rgba(255,255,255,.35);position:fixed;pointer-events:none;display:none;box-shadow:inset 0 0 20px rgba(255,255,255,.06);z-index:145}
+.joystick-knob{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.4);border:3px solid rgba(255,255,255,.55);position:fixed;pointer-events:none;display:none;box-shadow:0 2px 10px rgba(0,0,0,.35);z-index:146}
+#attack-btn{position:fixed;bottom:40px;right:30px;width:70px;height:70px;border-radius:50%;background:rgba(255,80,80,.5);border:2px solid rgba(255,80,80,.7);z-index:150;display:none;pointer-events:auto;color:#fff;font-size:.85em;font-weight:700;cursor:pointer;line-height:70px;text-align:center}
+#skill-btn{position:fixed;bottom:120px;right:30px;width:56px;height:56px;border-radius:50%;background:rgba(80,140,255,.5);border:2px solid rgba(80,140,255,.7);z-index:150;display:none;pointer-events:auto;color:#fff;font-size:.75em;font-weight:700;cursor:pointer;line-height:56px;text-align:center}
+#interact-btn{position:fixed;bottom:40px;right:120px;width:56px;height:56px;border-radius:50%;background:rgba(240,192,64,.5);border:2px solid rgba(240,192,64,.7);z-index:150;display:none;pointer-events:auto;color:#fff;font-size:.7em;font-weight:700;cursor:pointer;line-height:56px;text-align:center}
+
+/* SECTION: turn-based-combat */
+#turn-based-panel{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,.92);backdrop-filter:blur(12px);border-top:2px solid rgba(240,192,64,.4);z-index:250;display:none;pointer-events:auto;padding:12px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+.tb-enemy-info{text-align:center;margin-bottom:8px}
+.tb-enemy-name{color:#ff6b6b;font-weight:700;font-size:1em}
+.tb-enemy-hp-bar{width:60%;max-width:300px;height:10px;background:rgba(255,255,255,.1);border-radius:5px;margin:4px auto;overflow:hidden}
+.tb-enemy-hp-fill{height:100%;background:linear-gradient(90deg,#ff4444,#ff6b6b);border-radius:5px;transition:width .4s}
+.tb-enemy-hp-text{color:#ccc;font-size:.7em}
+.tb-message{text-align:center;color:#e0e0e0;font-size:.9em;min-height:24px;margin-bottom:8px;line-height:1.4}
+.tb-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.tb-btn{padding:10px 20px;border-radius:10px;border:2px solid;font-weight:700;font-size:.9em;cursor:pointer;min-width:80px;text-align:center;transition:transform .1s,opacity .2s;-webkit-tap-highlight-color:transparent}
+.tb-btn:active{transform:scale(.93)}
+.tb-btn.disabled{opacity:.4;pointer-events:none}
+.tb-btn.attack{background:rgba(255,80,80,.4);border-color:rgba(255,80,80,.7);color:#fff}
+.tb-btn.skill{background:rgba(80,140,255,.4);border-color:rgba(80,140,255,.7);color:#fff}
+.tb-btn.defend{background:rgba(80,200,80,.4);border-color:rgba(80,200,80,.7);color:#fff}
+.tb-btn.flee{background:rgba(200,200,80,.4);border-color:rgba(200,200,80,.7);color:#fff}
+#combat-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#ff4444;font-size:2.5em;font-weight:900;text-shadow:0 0 20px rgba(255,0,0,.5);z-index:260;pointer-events:none;display:none;animation:combatFlash .8s forwards}
+@keyframes combatFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}60%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+#turn-indicator{position:fixed;top:12%;left:50%;transform:translateX(-50%);padding:6px 20px;border-radius:20px;font-weight:700;font-size:.9em;z-index:255;display:none;pointer-events:none}
+#turn-indicator.player-turn{background:rgba(80,200,80,.7);color:#fff}
+#turn-indicator.enemy-turn{background:rgba(255,80,80,.7);color:#fff}
+
+/* SECTION: damage-numbers */
+.damage-number{position:fixed;color:#ff4444;font-weight:900;font-size:1.4em;text-shadow:0 0 4px rgba(0,0,0,.8),2px 2px 0 #000;pointer-events:none;z-index:300;animation:dmgFloat 1s forwards}
+.damage-number.heal{color:#44ff44}
+.damage-number.crit{color:#ffaa00;font-size:1.8em}
+@keyframes dmgFloat{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:1;transform:translateY(-40px) scale(1.1)}100%{opacity:0;transform:translateY(-70px) scale(.8)}}
+
+/* SECTION: death-screen */
+#death-screen{position:fixed;inset:0;background:rgba(100,0,0,.7);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:500}
+#death-screen h2{color:#ff4444;font-size:3em;text-shadow:0 0 30px rgba(255,0,0,.5);margin-bottom:20px}
+#death-screen button{background:linear-gradient(135deg,#f0c040,#e0a020);color:#1a1a2e;border:none;padding:12px 40px;border-radius:8px;font-size:1.1em;font-weight:700;cursor:pointer;pointer-events:auto}
+
+/* SECTION: crosshair */
+#crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;z-index:50;pointer-events:none;display:none}
+#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.5)}
+#crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%)}
+#crosshair::after{width:100%;height:2px;top:50%;transform:translateY(-50%)}
+
+/* SECTION: instructions */
+.instructions{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.5);font-size:.7em;z-index:100;pointer-events:none;text-align:center}
+
+/* fallback: show touch controls on small screens even if JS detection misses */
+@media (max-width:900px),(pointer:coarse){
+  #joystick-zone,#attack-btn,#skill-btn,#interact-btn{display:block !important}
+  #instructions{display:none !important}
+  #crosshair{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<!-- SECTION: loading-screen -->
+<div id="loading">
+  <h1>3D RPG 冒险</h1>
+  <div class="bar"><div class="bar-fill" id="load-bar"></div></div>
+  <p id="load-text">正在加载世界...</p>
+</div>
+
+<!-- SECTION: hud-ui -->
+<div id="hud" style="display:none">
+  <div class="hud-top">
+    <div class="player-info">
+      <div class="player-name"><span class="lv" id="lv-text">Lv.1</span> 勇者</div>
+      <div class="bar-group">
+        <div class="bar-row"><span class="bar-label hp">HP</span><div class="bar-track"><div class="bar-fill-hp" id="hp-bar" style="width:100%"></div></div><span class="bar-text" id="hp-text">100/100</span></div>
+        <div class="bar-row"><span class="bar-label mp">MP</span><div class="bar-track"><div class="bar-fill-mp" id="mp-bar" style="width:100%"></div></div><span class="bar-text" id="mp-text">50/50</span></div>
+        <div class="bar-row"><span class="bar-label exp">EXP</span><div class="bar-track"><div class="bar-fill-exp" id="exp-bar" style="width:0%"></div></div><span class="bar-text" id="exp-text">0/100</span></div>
+      </div>
+    </div>
+    <div class="minimap-wrap"><canvas id="minimap" width="120" height="120"></canvas></div>
+  </div>
+</div>
+
+<!-- SECTION: quest-ui -->
+<div class="quest-panel" id="quest-panel" style="display:none">
+  <div class="quest-title" id="quest-title">当前任务</div>
+  <div class="quest-desc" id="quest-desc">消灭史莱姆</div>
+  <div class="quest-progress" id="quest-progress">0 / 5</div>
+</div>
+
+<!-- SECTION: dialogue-ui -->
+<div id="dialogue">
+  <div class="npc-name" id="dlg-name">???</div>
+  <div class="npc-text" id="dlg-text">...</div>
+  <div class="dialogue-hint">按 E 或点击继续</div>
+</div>
+
+<!-- SECTION: combat-log-ui -->
+<div class="combat-log" id="combat-log"></div>
+
+<!-- SECTION: touch-ui -->
+<div id="joystick-zone"></div>
+<div class="joystick-base" id="joystick-base"></div>
+<div class="joystick-knob" id="joystick-knob"></div>
+<div id="attack-btn">攻击</div>
+<div id="skill-btn">技能</div>
+<div id="interact-btn">互动</div>
+
+<!-- SECTION: turn-based-ui -->
+<div id="turn-based-panel">
+  <div class="tb-enemy-info">
+    <div class="tb-enemy-name" id="tb-enemy-name">???</div>
+    <div class="tb-enemy-hp-bar"><div class="tb-enemy-hp-fill" id="tb-enemy-hp-fill" style="width:100%"></div></div>
+    <div class="tb-enemy-hp-text" id="tb-enemy-hp-text">??/??</div>
+  </div>
+  <div class="tb-message" id="tb-message">选择你的行动</div>
+  <div class="tb-actions" id="tb-actions">
+    <div class="tb-btn attack" id="tb-attack">⚔ 攻击</div>
+    <div class="tb-btn skill" id="tb-skill">✦ 技能</div>
+    <div class="tb-btn defend" id="tb-defend">🛡 防御</div>
+    <div class="tb-btn flee" id="tb-flee">🏃 逃跑</div>
+  </div>
+</div>
+<div id="combat-overlay">⚔ 战斗！</div>
+<div id="turn-indicator">你的回合</div>
+
+<!-- SECTION: death-ui -->
+<div id="death-screen">
+  <h2>你倒下了</h2>
+  <button id="respawn-btn">复活</button>
+</div>
+
+<div id="crosshair"></div>
+<div id="npc-hint"><div class="hint-text">按 E / 点击「互动」对话</div></div>
+<div class="instructions" id="instructions">WASD 移动 · 鼠标控制视角 · 靠近敌人进入回合制战斗 · 1攻击 2技能 3防御 4逃跑 · E 互动 · 空格跳跃</div>
+
+<!-- SECTION: three-js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+/* ===== SECTION: game-config ===== */
+const CONFIG = {
+  world: { size: 200, chunkDetail: 64 },
+  player: { speed: 8, runSpeed: 14, jumpForce: 12, hp: 100, mp: 50, atk: 15, def: 3 },
+  camera: { distance: 12, height: 8, sensitivity: 0.003 },
+  enemy: { spawnRadius: 40, maxCount: 12, respawnTime: 8000 },
+  quests: [
+    { id: 'q1', title: '初出茅庐', desc: '消灭 5 只史莱姆', target: 'slime', count: 5, reward: { exp: 150, gold: 50 }},
+    { id: 'q2', title: '骷髅威胁', desc: '消灭 3 只骷髅兵', target: 'skeleton', count: 3, reward: { exp: 300, gold: 100 }},
+    { id: 'q3', title: '精英讨伐', desc: '消灭 2 只巨型史莱姆', target: 'bigSlime', count: 2, reward: { exp: 500, gold: 200 }}
+  ]
+};
+
+/* ===== SECTION: game-state ===== */
+const state = {
+  player: { hp: CONFIG.player.hp, maxHp: CONFIG.player.hp, mp: CONFIG.player.mp, maxMp: CONFIG.player.mp, exp: 0, expToLevel: 100, level: 1, atk: CONFIG.player.atk, def: CONFIG.player.def, gold: 0, isDead: false, isAttacking: false, combatCooldown: 0, isGrounded: true, vy: 0, facing: 0 },
+  enemies: [],
+  npcs: [],
+  chests: [],
+  trees: [],
+  rocks: [],
+  killCounts: { slime: 0, skeleton: 0, bigSlime: 0 },
+  currentQuest: 0,
+  questComplete: false,
+  dialogueActive: false,
+  dialogueTarget: null,
+  logs: [],
+  time: 0,
+  isMobile: false,
+  pointerLocked: false,
+  /* turn-based combat */
+  combat: { active: false, enemy: null, playerTurn: true, busy: false, defending: false, turnCount: 0 }
+};
+
+/* ===== SECTION: globals ===== */
+let scene, camera, renderer, clock;
+let playerMesh, playerGroup;
+let terrainMesh;
+let minimapCtx;
+const keys = {};
+const joystickDir = { x: 0, z: 0 };
+let camYaw = 0, camPitch = 0.3;
+const raycaster = new THREE.Raycaster();
+const tempVec = new THREE.Vector3();
+
+/* ===== SECTION: init ===== */
+function init() {
+  state.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87CEEB);
+  scene.fog = new THREE.FogExp2(0x87CEEB, 0.008);
+
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
+  renderer = new THREE.WebGLRenderer({ antialias: !state.isMobile });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.body.appendChild(renderer.domElement);
+  clock = new THREE.Clock();
+
+  minimapCtx = document.getElementById('minimap').getContext('2d');
+
+  updateLoadBar(10, '生成地形...');
+  setTimeout(() => {
+    createTerrain();
+    updateLoadBar(30, '种植树木...');
+    setTimeout(() => {
+      createEnvironment();
+      updateLoadBar(50, '召唤生物...');
+      setTimeout(() => {
+        createPlayer();
+        createEnemies();
+        createNPCs();
+        createChests();
+        updateLoadBar(70, '设置光照...');
+        setTimeout(() => {
+          createLighting();
+          createSkybox();
+          updateLoadBar(90, '初始化控制...');
+          setTimeout(() => {
+            setupControls();
+            updateLoadBar(100, '准备就绪！');
+            setTimeout(startGame, 400);
+          }, 100);
+        }, 100);
+      }, 100);
+    }, 100);
+  }, 100);
+}
+
+function updateLoadBar(pct, text) {
+  document.getElementById('load-bar').style.width = pct + '%';
+  document.getElementById('load-text').textContent = text;
+}
+
+function startGame() {
+  document.getElementById('loading').style.opacity = '0';
+  setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 500);
+  document.getElementById('hud').style.display = '';
+  document.getElementById('quest-panel').style.display = '';
+  document.getElementById('crosshair').style.display = '';
+  if (state.isMobile) {
+    document.getElementById('joystick-zone').style.display = '';
+    document.getElementById('attack-btn').style.display = '';
+    document.getElementById('skill-btn').style.display = '';
+    document.getElementById('interact-btn').style.display = '';
+    document.getElementById('instructions').style.display = 'none';
+    document.getElementById('crosshair').style.display = 'none';
+  }
+  updateQuestUI();
+  animate();
+}
+
+/* ===== SECTION: terrain ===== */
+function createTerrain() {
+  const geo = new THREE.PlaneGeometry(CONFIG.world.size, CONFIG.world.size, CONFIG.world.chunkDetail, CONFIG.world.chunkDetail);
+  geo.rotateX(-Math.PI / 2);
+  const verts = geo.attributes.position;
+  for (let i = 0; i < verts.count; i++) {
+    const x = verts.getX(i), z = verts.getZ(i);
+    const h = getTerrainHeight(x, z);
+    verts.setY(i, h);
+  }
+  geo.computeVertexNormals();
+
+  /* vertex colors for grass variation */
+  const colors = new Float32Array(verts.count * 3);
+  for (let i = 0; i < verts.count; i++) {
+    const y = verts.getY(i);
+    const g = 0.35 + Math.random() * 0.15 + y * 0.02;
+    colors[i * 3] = 0.15 + Math.random() * 0.05;
+    colors[i * 3 + 1] = g;
+    colors[i * 3 + 2] = 0.08 + Math.random() * 0.05;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
+  terrainMesh = new THREE.Mesh(geo, mat);
+  terrainMesh.receiveShadow = true;
+  scene.add(terrainMesh);
+
+  /* water plane */
+  const waterGeo = new THREE.PlaneGeometry(CONFIG.world.size * 2, CONFIG.world.size * 2);
+  waterGeo.rotateX(-Math.PI / 2);
+  const waterMat = new THREE.MeshLambertMaterial({ color: 0x3388cc, transparent: true, opacity: 0.6 });
+  const water = new THREE.Mesh(waterGeo, waterMat);
+  water.position.y = -1.5;
+  scene.add(water);
+}
+
+function getTerrainHeight(x, z) {
+  return Math.sin(x * 0.05) * 2 + Math.cos(z * 0.05) * 2 + Math.sin(x * 0.02 + z * 0.03) * 3;
+}
+
+/* ===== SECTION: environment ===== */
+function createEnvironment() {
+  /* trees */
+  for (let i = 0; i < 80; i++) {
+    const x = (Math.random() - 0.5) * CONFIG.world.size * 0.85;
+    const z = (Math.random() - 0.5) * CONFIG.world.size * 0.85;
+    if (Math.abs(x) < 8 && Math.abs(z) < 8) continue;
+    createTree(x, z);
+  }
+  /* rocks */
+  for (let i = 0; i < 40; i++) {
+    const x = (Math.random() - 0.5) * CONFIG.world.size * 0.85;
+    const z = (Math.random() - 0.5) * CONFIG.world.size * 0.85;
+    if (Math.abs(x) < 6 && Math.abs(z) < 6) continue;
+    createRock(x, z);
+  }
+  /* grass tufts */
+  for (let i = 0; i < 200; i++) {
+    const x = (Math.random() - 0.5) * CONFIG.world.size * 0.8;
+    const z = (Math.random() - 0.5) * CONFIG.world.size * 0.8;
+    createGrassTuft(x, z);
+  }
+}
+
+function createTree(x, z) {
+  const group = new THREE.Group();
+  const h = 3 + Math.random() * 4;
+  const trunkGeo = new THREE.CylinderGeometry(0.2, 0.35, h, 6);
+  const trunkMat = new THREE.MeshLambertMaterial({ color: 0x8B5A2B });
+  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+  trunk.position.y = h / 2;
+  trunk.castShadow = true;
+  group.add(trunk);
+
+  const leavesCount = 2 + Math.floor(Math.random() * 2);
+  for (let j = 0; j < leavesCount; j++) {
+    const r = 1.5 + Math.random() * 1.5;
+    const lGeo = new THREE.SphereGeometry(r, 6, 5);
+    const lMat = new THREE.MeshLambertMaterial({ color: new THREE.Color().setHSL(0.28 + Math.random() * 0.08, 0.6, 0.3 + Math.random() * 0.15) });
+    const leaf = new THREE.Mesh(lGeo, lMat);
+    leaf.position.set((Math.random() - 0.5) * 1.5, h - 0.5 + j * 1.2, (Math.random() - 0.5) * 1.5);
+    leaf.castShadow = true;
+    group.add(leaf);
+  }
+
+  const y = getTerrainHeight(x, z);
+  group.position.set(x, y, z);
+  scene.add(group);
+  state.trees.push({ x, z, r: 0.5 });
+}
+
+function createRock(x, z) {
+  const s = 0.5 + Math.random() * 1.5;
+  const geo = new THREE.DodecahedronGeometry(s, 0);
+  const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color().setHSL(0, 0, 0.35 + Math.random() * 0.2) });
+  const rock = new THREE.Mesh(geo, mat);
+  const y = getTerrainHeight(x, z);
+  rock.position.set(x, y + s * 0.3, z);
+  rock.rotation.set(Math.random(), Math.random(), Math.random());
+  rock.castShadow = true;
+  scene.add(rock);
+  state.rocks.push({ x, z, r: s * 0.6 });
+}
+
+function createGrassTuft(x, z) {
+  const geo = new THREE.ConeGeometry(0.15, 0.6, 4);
+  const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color().setHSL(0.3, 0.7, 0.25 + Math.random() * 0.1) });
+  const grass = new THREE.Mesh(geo, mat);
+  const y = getTerrainHeight(x, z);
+  grass.position.set(x, y + 0.25, z);
+  scene.add(grass);
+}
+
+/* ===== SECTION: player ===== */
+function createPlayer() {
+  playerGroup = new THREE.Group();
+
+  /* body */
+  const bodyGeo = new THREE.BoxGeometry(0.8, 1.2, 0.5);
+  const bodyMat = new THREE.MeshLambertMaterial({ color: 0x4466aa });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 1.4;
+  body.castShadow = true;
+  playerGroup.add(body);
+
+  /* head */
+  const headGeo = new THREE.BoxGeometry(0.55, 0.55, 0.55);
+  const headMat = new THREE.MeshLambertMaterial({ color: 0xffcc99 });
+  const head = new THREE.Mesh(headGeo, headMat);
+  head.position.y = 2.3;
+  head.castShadow = true;
+  playerGroup.add(head);
+
+  /* helmet */
+  const helmetGeo = new THREE.BoxGeometry(0.6, 0.3, 0.6);
+  const helmetMat = new THREE.MeshLambertMaterial({ color: 0x888888 });
+  const helmet = new THREE.Mesh(helmetGeo, helmetMat);
+  helmet.position.y = 2.6;
+  playerGroup.add(helmet);
+
+  /* legs */
+  for (let side of [-1, 1]) {
+    const legGeo = new THREE.BoxGeometry(0.3, 0.8, 0.35);
+    const legMat = new THREE.MeshLambertMaterial({ color: 0x554433 });
+    const leg = new THREE.Mesh(legGeo, legMat);
+    leg.position.set(side * 0.2, 0.4, 0);
+    leg.castShadow = true;
+    leg.name = side === -1 ? 'leftLeg' : 'rightLeg';
+    playerGroup.add(leg);
+  }
+
+  /* arms */
+  for (let side of [-1, 1]) {
+    const armGeo = new THREE.BoxGeometry(0.25, 0.9, 0.3);
+    const armMat = new THREE.MeshLambertMaterial({ color: 0x4466aa });
+    const arm = new THREE.Mesh(armGeo, armMat);
+    arm.position.set(side * 0.55, 1.5, 0);
+    arm.castShadow = true;
+    arm.name = side === -1 ? 'leftArm' : 'rightArm';
+    playerGroup.add(arm);
+  }
+
+  /* sword (right hand) */
+  const swordGroup = new THREE.Group();
+  const bladeGeo = new THREE.BoxGeometry(0.08, 1.2, 0.08);
+  const bladeMat = new THREE.MeshLambertMaterial({ color: 0xcccccc });
+  const blade = new THREE.Mesh(bladeGeo, bladeMat);
+  blade.position.y = 0.6;
+  swordGroup.add(blade);
+  const hiltGeo = new THREE.BoxGeometry(0.3, 0.1, 0.08);
+  const hiltMat = new THREE.MeshLambertMaterial({ color: 0x8B5A2B });
+  const hilt = new THREE.Mesh(hiltGeo, hiltMat);
+  swordGroup.add(hilt);
+  swordGroup.position.set(0.55, 1.0, 0.3);
+  swordGroup.name = 'sword';
+  playerGroup.add(swordGroup);
+
+  /* shield (left hand) */
+  const shieldGeo = new THREE.BoxGeometry(0.08, 0.7, 0.5);
+  const shieldMat = new THREE.MeshLambertMaterial({ color: 0xcc3333 });
+  const shield = new THREE.Mesh(shieldGeo, shieldMat);
+  shield.position.set(-0.6, 1.5, 0.2);
+  shield.name = 'shield';
+  playerGroup.add(shield);
+
+  const y = getTerrainHeight(0, 0);
+  playerGroup.position.set(0, y, 0);
+  scene.add(playerGroup);
+  playerMesh = playerGroup;
+}
+
+/* ===== SECTION: enemies ===== */
+function createEnemyMesh(type, x, z) {
+  const group = new THREE.Group();
+  let hp, atk, exp, speed, scale = 1;
+
+  if (type === 'slime') {
+    hp = 30; atk = 5; exp = 25; speed = 2;
+    const bodyGeo = new THREE.SphereGeometry(0.6, 8, 6);
+    bodyGeo.scale(1, 0.7, 1);
+    const bodyMat = new THREE.MeshLambertMaterial({ color: 0x44cc44, transparent: true, opacity: 0.8 });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 0.4;
+    body.castShadow = true;
+    group.add(body);
+    /* eyes */
+    for (let s of [-1, 1]) {
+      const eyeGeo = new THREE.SphereGeometry(0.1, 6, 4);
+      const eyeMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+      const eye = new THREE.Mesh(eyeGeo, eyeMat);
+      eye.position.set(s * 0.2, 0.55, 0.45);
+      group.add(eye);
+      const pupilGeo = new THREE.SphereGeometry(0.05, 6, 4);
+      const pupilMat = new THREE.MeshLambertMaterial({ color: 0x000000 });
+      const pupil = new THREE.Mesh(pupilGeo, pupilMat);
+      pupil.position.set(s * 0.2, 0.55, 0.52);
+      group.add(pupil);
+    }
+  } else if (type === 'bigSlime') {
+    hp = 100; atk = 12; exp = 80; speed = 1.5; scale = 1.8;
+    const bodyGeo = new THREE.SphereGeometry(0.6, 8, 6);
+    bodyGeo.scale(1, 0.7, 1);
+    const bodyMat = new THREE.MeshLambertMaterial({ color: 0xcc44cc, transparent: true, opacity: 0.75 });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 0.4;
+    body.castShadow = true;
+    group.add(body);
+    for (let s of [-1, 1]) {
+      const eyeGeo = new THREE.SphereGeometry(0.12, 6, 4);
+      const eyeMat = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+      const eye = new THREE.Mesh(eyeGeo, eyeMat);
+      eye.position.set(s * 0.25, 0.55, 0.45);
+      group.add(eye);
+    }
+    group.scale.setScalar(scale);
+  } else if (type === 'skeleton') {
+    hp = 60; atk = 10; exp = 50; speed = 3;
+    /* body */
+    const bodyGeo = new THREE.BoxGeometry(0.6, 1.0, 0.3);
+    const bodyMat = new THREE.MeshLambertMaterial({ color: 0xddddcc });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 1.2;
+    body.castShadow = true;
+    group.add(body);
+    /* head */
+    const headGeo = new THREE.BoxGeometry(0.45, 0.45, 0.4);
+    const head = new THREE.Mesh(headGeo, bodyMat);
+    head.position.y = 2.0;
+    group.add(head);
+    /* eyes */
+    for (let s of [-1, 1]) {
+      const eyeGeo = new THREE.BoxGeometry(0.1, 0.12, 0.05);
+      const eyeMat = new THREE.MeshLambertMaterial({ color: 0xff3333, emissive: 0xff0000, emissiveIntensity: 0.5 });
+      const eye = new THREE.Mesh(eyeGeo, eyeMat);
+      eye.position.set(s * 0.12, 2.05, 0.2);
+      group.add(eye);
+    }
+    /* legs */
+    for (let s of [-1, 1]) {
+      const legGeo = new THREE.BoxGeometry(0.15, 0.7, 0.15);
+      const leg = new THREE.Mesh(legGeo, bodyMat);
+      leg.position.set(s * 0.15, 0.35, 0);
+      group.add(leg);
+    }
+    /* weapon */
+    const weapGeo = new THREE.BoxGeometry(0.06, 1.0, 0.06);
+    const weapMat = new THREE.MeshLambertMaterial({ color: 0x666666 });
+    const weap = new THREE.Mesh(weapGeo, weapMat);
+    weap.position.set(0.45, 1.2, 0);
+    weap.rotation.z = -0.3;
+    group.add(weap);
+  }
+
+  /* HP bar above enemy */
+  const hpBarBg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.2, 0.12),
+    new THREE.MeshBasicMaterial({ color: 0x333333, side: THREE.DoubleSide })
+  );
+  hpBarBg.position.y = type === 'bigSlime' ? 2.2 : 2.5;
+  hpBarBg.name = 'hpBarBg';
+  group.add(hpBarBg);
+
+  const hpBarFill = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.18, 0.1),
+    new THREE.MeshBasicMaterial({ color: 0xff4444, side: THREE.DoubleSide })
+  );
+  hpBarFill.position.y = type === 'bigSlime' ? 2.2 : 2.5;
+  hpBarFill.position.z = 0.01;
+  hpBarFill.name = 'hpBar';
+  group.add(hpBarFill);
+
+  const y = getTerrainHeight(x, z);
+  group.position.set(x, y, z);
+  scene.add(group);
+
+  return {
+    mesh: group, type, hp, maxHp: hp, atk, exp, speed,
+    x, z, alive: true,
+    aiState: 'idle', aiTimer: 0, targetX: x, targetZ: z,
+    hitFlash: 0, scale
+  };
+}
+
+function createEnemies() {
+  const types = ['slime', 'slime', 'slime', 'slime', 'skeleton', 'skeleton', 'bigSlime'];
+  for (let i = 0; i < 10; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 15 + Math.random() * CONFIG.enemy.spawnRadius;
+    const x = Math.cos(angle) * dist;
+    const z = Math.sin(angle) * dist;
+    const type = types[Math.floor(Math.random() * types.length)];
+    state.enemies.push(createEnemyMesh(type, x, z));
+  }
+}
+
+/* ===== SECTION: npcs ===== */
+function createNPCs() {
+  const npcData = [
+    { x: 5, z: -5, name: '村长', color: 0xaa6633, dialogues: [
+      '欢迎来到冒险者村庄！这里最近怪物横行，请帮帮我们！',
+      '消灭史莱姆和骷髅兵可以获取经验和金币。',
+      '小心那些巨型史莱姆，它们非常强大！',
+      '祝你冒险顺利，勇者！'
+    ]},
+    { x: -6, z: 4, name: '铁匠', color: 0x886644, dialogues: [
+      '我是村里的铁匠，可惜现在材料短缺无法打造武器。',
+      '听说消灭怪物有几率掉落强化材料...',
+      '如果你变得更强了，记得回来看看！'
+    ]},
+    { x: 3, z: 8, name: '药师', color: 0x338855, dialogues: [
+      '你好！我是村里的药师。',
+      '每隔一段时间你的生命值会自动恢复一点。',
+      '击败更多怪物可以加快恢复速度！'
+    ]}
+  ];
+
+  npcData.forEach(npc => {
+    const group = new THREE.Group();
+    /* body */
+    const bodyGeo = new THREE.BoxGeometry(0.7, 1.1, 0.45);
+    const bodyMat = new THREE.MeshLambertMaterial({ color: npc.color });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 1.35;
+    body.castShadow = true;
+    group.add(body);
+    /* head */
+    const headGeo = new THREE.SphereGeometry(0.3, 8, 6);
+    const headMat = new THREE.MeshLambertMaterial({ color: 0xffcc99 });
+    const head = new THREE.Mesh(headGeo, headMat);
+    head.position.y = 2.15;
+    group.add(head);
+    /* hat */
+    const hatGeo = new THREE.ConeGeometry(0.35, 0.5, 6);
+    const hatMat = new THREE.MeshLambertMaterial({ color: npc.color });
+    const hat = new THREE.Mesh(hatGeo, hatMat);
+    hat.position.y = 2.6;
+    group.add(hat);
+    /* exclamation mark */
+    const markGeo = new THREE.BoxGeometry(0.12, 0.4, 0.12);
+    const markMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const mark = new THREE.Mesh(markGeo, markMat);
+    mark.position.y = 3.2;
+    mark.name = 'exclamation';
+    group.add(mark);
+    const dotGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+    const dot = new THREE.Mesh(dotGeo, markMat);
+    dot.position.y = 2.9;
+    group.add(dot);
+
+    const y = getTerrainHeight(npc.x, npc.z);
+    group.position.set(npc.x, y, npc.z);
+    scene.add(group);
+    state.npcs.push({ mesh: group, ...npc, dialogueIndex: 0 });
+  });
+}
+
+/* ===== SECTION: chests ===== */
+function createChests() {
+  const positions = [
+    { x: 20, z: -15 }, { x: -25, z: 20 }, { x: 35, z: 30 },
+    { x: -15, z: -30 }, { x: 40, z: -10 }
+  ];
+  positions.forEach(pos => {
+    const group = new THREE.Group();
+    const baseGeo = new THREE.BoxGeometry(0.8, 0.5, 0.6);
+    const baseMat = new THREE.MeshLambertMaterial({ color: 0x8B5A2B });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.25;
+    base.castShadow = true;
+    group.add(base);
+    /* lid */
+    const lidGeo = new THREE.BoxGeometry(0.82, 0.2, 0.62);
+    const lidMat = new THREE.MeshLambertMaterial({ color: 0x6B3A1B });
+    const lid = new THREE.Mesh(lidGeo, lidMat);
+    lid.position.y = 0.6;
+    group.add(lid);
+    /* lock */
+    const lockGeo = new THREE.BoxGeometry(0.15, 0.15, 0.05);
+    const lockMat = new THREE.MeshLambertMaterial({ color: 0xf0c040 });
+    const lock = new THREE.Mesh(lockGeo, lockMat);
+    lock.position.set(0, 0.45, 0.32);
+    group.add(lock);
+    /* glow */
+    const glowGeo = new THREE.SphereGeometry(0.5, 8, 6);
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xf0c040, transparent: true, opacity: 0.15 });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.y = 0.5;
+    glow.name = 'glow';
+    group.add(glow);
+
+    const y = getTerrainHeight(pos.x, pos.z);
+    group.position.set(pos.x, y, pos.z);
+    scene.add(group);
+    state.chests.push({ mesh: group, ...pos, opened: false });
+  });
+}
+
+/* ===== SECTION: lighting ===== */
+function createLighting() {
+  const ambient = new THREE.AmbientLight(0x6688aa, 0.5);
+  scene.add(ambient);
+
+  const sun = new THREE.DirectionalLight(0xffeedd, 1.0);
+  sun.position.set(50, 80, 30);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.near = 0.5;
+  sun.shadow.camera.far = 200;
+  sun.shadow.camera.left = -60;
+  sun.shadow.camera.right = 60;
+  sun.shadow.camera.top = 60;
+  sun.shadow.camera.bottom = -60;
+  sun.name = 'sun';
+  scene.add(sun);
+
+  const hemi = new THREE.HemisphereLight(0x88aacc, 0x445522, 0.3);
+  scene.add(hemi);
+}
+
+function createSkybox() {
+  /* simple gradient sky with clouds (decorative planes) */
+  for (let i = 0; i < 15; i++) {
+    const cloudGeo = new THREE.PlaneGeometry(15 + Math.random() * 20, 3 + Math.random() * 4);
+    const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 + Math.random() * 0.3, side: THREE.DoubleSide });
+    const cloud = new THREE.Mesh(cloudGeo, cloudMat);
+    cloud.position.set((Math.random() - 0.5) * 200, 40 + Math.random() * 20, (Math.random() - 0.5) * 200);
+    cloud.rotation.x = -Math.PI / 2;
+    cloud.name = 'cloud';
+    scene.add(cloud);
+  }
+}
+
+/* ===== SECTION: controls ===== */
+function setupControls() {
+  /* keyboard */
+  window.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code === 'KeyE') tryInteract();
+    /* combat keyboard shortcuts */
+    if (state.combat.active && state.combat.playerTurn && !state.combat.busy) {
+      if (e.code === 'Digit1' || e.code === 'KeyJ') combatAttack();
+      if (e.code === 'Digit2' || e.code === 'KeyK') combatSkill();
+      if (e.code === 'Digit3' || e.code === 'KeyL') combatDefend();
+      if (e.code === 'Digit4' || e.code === 'KeyU') combatFlee();
+    }
+  });
+  window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+  /* mouse */
+  renderer.domElement.addEventListener('click', () => {
+    if (!state.pointerLocked && !state.isMobile) {
+      renderer.domElement.requestPointerLock();
+    } else if (state.combat.active) {
+      combatAttack();
+    }
+  });
+  document.addEventListener('pointerlockchange', () => {
+    state.pointerLocked = !!document.pointerLockElement;
+  });
+  document.addEventListener('mousemove', e => {
+    if (!state.pointerLocked) return;
+    camYaw -= e.movementX * CONFIG.camera.sensitivity;
+    camPitch = Math.max(-0.5, Math.min(1.2, camPitch + e.movementY * CONFIG.camera.sensitivity));
+  });
+
+  /* touch joystick — dynamic, appears at touch point on left half */
+  if (state.isMobile) {
+    const jZone = document.getElementById('joystick-zone');
+    const knob = document.getElementById('joystick-knob');
+    const base = document.getElementById('joystick-base');
+    let jTouch = null;
+    let jOriginX = 0, jOriginY = 0;
+    const maxR = 55;
+    const baseR = 65;
+    const knobR = 28;
+
+    function showJoystick(cx, cy) {
+      base.style.display = 'block';
+      base.style.left = (cx - baseR) + 'px';
+      base.style.top = (cy - baseR) + 'px';
+      knob.style.display = 'block';
+      knob.style.left = (cx - knobR) + 'px';
+      knob.style.top = (cy - knobR) + 'px';
+      jOriginX = cx;
+      jOriginY = cy;
+    }
+
+    function hideJoystick() {
+      base.style.display = 'none';
+      knob.style.display = 'none';
+      joystickDir.x = 0;
+      joystickDir.z = 0;
+    }
+
+    jZone.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if (jTouch !== null) return;
+      const t = e.changedTouches[0];
+      jTouch = t.identifier;
+      showJoystick(t.clientX, t.clientY);
+    }, { passive: false });
+
+    jZone.addEventListener('touchmove', e => {
+      e.preventDefault();
+      for (let t of e.changedTouches) {
+        if (t.identifier === jTouch) {
+          let dx = t.clientX - jOriginX;
+          let dy = t.clientY - jOriginY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; }
+          knob.style.left = (jOriginX - knobR + dx) + 'px';
+          knob.style.top = (jOriginY - knobR + dy) + 'px';
+          joystickDir.x = dx / maxR;
+          joystickDir.z = dy / maxR;
+        }
+      }
+    }, { passive: false });
+
+    function resetJoystick(e) {
+      for (let t of e.changedTouches) {
+        if (t.identifier === jTouch) {
+          hideJoystick();
+          jTouch = null;
+        }
+      }
+    }
+    jZone.addEventListener('touchend', resetJoystick);
+    jZone.addEventListener('touchcancel', resetJoystick);
+
+    /* touch camera — right half of screen via document-level */
+    let camTouch = null, lastCamX = 0, lastCamY = 0;
+    document.addEventListener('touchstart', e => {
+      for (let t of e.changedTouches) {
+        /* right half = camera */
+        if (t.clientX > window.innerWidth * 0.5 && camTouch === null) {
+          /* skip if touching a button */
+          const el = document.elementFromPoint(t.clientX, t.clientY);
+          if (el && (el.id === 'attack-btn' || el.id === 'skill-btn' || el.id === 'interact-btn' || el.closest('#turn-based-panel') || el.closest('#dialogue'))) continue;
+          camTouch = t.identifier;
+          lastCamX = t.clientX;
+          lastCamY = t.clientY;
+        }
+      }
+    }, { passive: false });
+    document.addEventListener('touchmove', e => {
+      for (let t of e.changedTouches) {
+        if (t.identifier === camTouch) {
+          camYaw -= (t.clientX - lastCamX) * 0.005;
+          camPitch = Math.max(-0.5, Math.min(1.2, camPitch + (t.clientY - lastCamY) * 0.005));
+          lastCamX = t.clientX;
+          lastCamY = t.clientY;
+        }
+      }
+    }, { passive: false });
+    function resetCam(e) { for (let t of e.changedTouches) { if (t.identifier === camTouch) camTouch = null; } }
+    document.addEventListener('touchend', resetCam);
+    document.addEventListener('touchcancel', resetCam);
+
+    /* buttons — attack/skill now trigger combat actions */
+    document.getElementById('attack-btn').addEventListener('touchstart', e => { e.preventDefault(); if (state.combat.active) combatAttack(); }, { passive: false });
+    document.getElementById('skill-btn').addEventListener('touchstart', e => { e.preventDefault(); if (state.combat.active) combatSkill(); }, { passive: false });
+    document.getElementById('interact-btn').addEventListener('touchstart', e => { e.preventDefault(); tryInteract(); }, { passive: false });
+  }
+
+  /* turn-based combat buttons */
+  document.getElementById('tb-attack').addEventListener('click', combatAttack);
+  document.getElementById('tb-attack').addEventListener('touchstart', e => { e.preventDefault(); combatAttack(); }, { passive: false });
+  document.getElementById('tb-skill').addEventListener('click', combatSkill);
+  document.getElementById('tb-skill').addEventListener('touchstart', e => { e.preventDefault(); combatSkill(); }, { passive: false });
+  document.getElementById('tb-defend').addEventListener('click', combatDefend);
+  document.getElementById('tb-defend').addEventListener('touchstart', e => { e.preventDefault(); combatDefend(); }, { passive: false });
+  document.getElementById('tb-flee').addEventListener('click', combatFlee);
+  document.getElementById('tb-flee').addEventListener('touchstart', e => { e.preventDefault(); combatFlee(); }, { passive: false });
+
+  /* dialogue click to advance */
+  document.getElementById('dialogue').addEventListener('click', advanceDialogue);
+
+  /* respawn */
+  document.getElementById('respawn-btn').addEventListener('click', respawn);
+
+  /* resize */
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+/* ===== SECTION: combat ===== */
+/* --- Turn-Based Combat System --- */
+function enemyName(type) {
+  return type === 'slime' ? '史莱姆' : type === 'skeleton' ? '骷髅兵' : '巨型史莱姆';
+}
+
+function startCombat(en) {
+  if (state.combat.active) return;
+  state.combat.active = true;
+  state.combat.enemy = en;
+  state.combat.playerTurn = true;
+  state.combat.busy = false;
+  state.combat.defending = false;
+  state.combat.turnCount = 0;
+  en.aiState = 'combat';
+
+  /* show flash */
+  const overlay = document.getElementById('combat-overlay');
+  overlay.style.display = 'block';
+  overlay.style.animation = 'none';
+  void overlay.offsetWidth;
+  overlay.style.animation = 'combatFlash .8s forwards';
+  setTimeout(() => { overlay.style.display = 'none'; }, 900);
+
+  /* position camera to face enemy */
+  const dx = en.mesh.position.x - playerGroup.position.x;
+  const dz = en.mesh.position.z - playerGroup.position.z;
+  playerGroup.rotation.y = Math.atan2(dx, dz);
+
+  /* show panel after flash */
+  setTimeout(() => {
+    showTurnPanel();
+    showTurnIndicator(true);
+    setCombatMessage('选择你的行动');
+    enableActions(true);
+  }, 600);
+
+  addLog('遭遇' + enemyName(en.type) + '！进入战斗！', 'info');
+}
+
+function showTurnPanel() {
+  const panel = document.getElementById('turn-based-panel');
+  panel.style.display = '';
+  updateCombatEnemyUI();
+}
+
+function hideTurnPanel() {
+  document.getElementById('turn-based-panel').style.display = 'none';
+  document.getElementById('turn-indicator').style.display = 'none';
+}
+
+function updateCombatEnemyUI() {
+  const en = state.combat.enemy;
+  if (!en) return;
+  document.getElementById('tb-enemy-name').textContent = enemyName(en.type) + ' Lv.' + Math.max(1, Math.floor(en.maxHp / 20));
+  const ratio = Math.max(0, en.hp / en.maxHp);
+  document.getElementById('tb-enemy-hp-fill').style.width = (ratio * 100) + '%';
+  document.getElementById('tb-enemy-hp-text').textContent = Math.max(0, Math.ceil(en.hp)) + ' / ' + en.maxHp;
+}
+
+function setCombatMessage(msg) {
+  document.getElementById('tb-message').textContent = msg;
+}
+
+function showTurnIndicator(isPlayer) {
+  const ind = document.getElementById('turn-indicator');
+  ind.style.display = '';
+  ind.textContent = isPlayer ? '⚔ 你的回合' : '🔥 敌方回合';
+  ind.className = isPlayer ? 'player-turn' : 'enemy-turn';
+}
+
+function enableActions(on) {
+  const btns = document.querySelectorAll('.tb-btn');
+  btns.forEach(b => {
+    if (on) {
+      b.classList.remove('disabled');
+    } else {
+      b.classList.add('disabled');
+    }
+  });
+  /* disable skill if not enough MP */
+  if (on && state.player.mp < 20) {
+    document.getElementById('tb-skill').classList.add('disabled');
+  }
+}
+
+/* player chose attack */
+function combatAttack() {
+  if (state.combat.busy || !state.combat.playerTurn) return;
+  state.combat.busy = true;
+  state.combat.defending = false;
+  enableActions(false);
+
+  const en = state.combat.enemy;
+  const dmg = Math.max(1, state.player.atk + Math.floor(Math.random() * 6) - 2);
+  const crit = Math.random() < 0.15;
+  const finalDmg = crit ? dmg * 2 : dmg;
+
+  /* swing animation */
+  const sword = playerGroup.getObjectByName('sword');
+  if (sword) {
+    sword.rotation.z = -1.5;
+    setTimeout(() => { sword.rotation.z = 0; }, 300);
+  }
+
+  setTimeout(() => {
+    en.hp -= finalDmg;
+    en.hitFlash = 0.3;
+    showDamageNumber(en.mesh.position, finalDmg, crit);
+    updateCombatEnemyUI();
+    setCombatMessage(crit ? '暴击！造成了 ' + finalDmg + ' 点伤害！' : '攻击！造成了 ' + finalDmg + ' 点伤害');
+    addLog((crit ? '暴击！' : '') + '对' + enemyName(en.type) + '造成 ' + finalDmg + ' 伤害', 'damage');
+
+    if (en.hp <= 0) {
+      setTimeout(() => endCombatVictory(en), 800);
+    } else {
+      setTimeout(() => enemyTurn(), 1000);
+    }
+  }, 400);
+}
+
+/* player chose skill */
+function combatSkill() {
+  if (state.combat.busy || !state.combat.playerTurn || state.player.mp < 20) return;
+  state.combat.busy = true;
+  state.combat.defending = false;
+  enableActions(false);
+  state.player.mp -= 20;
+
+  const en = state.combat.enemy;
+  const dmg = Math.max(1, Math.floor(state.player.atk * 1.8) + Math.floor(Math.random() * 8));
+
+  /* visual effect */
+  const effectGeo = new THREE.RingGeometry(0.3, 3, 16);
+  const effectMat = new THREE.MeshBasicMaterial({ color: 0x6bb5ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+  const effect = new THREE.Mesh(effectGeo, effectMat);
+  effect.position.copy(en.mesh.position);
+  effect.position.y += 0.5;
+  effect.rotation.x = -Math.PI / 2;
+  scene.add(effect);
+  setTimeout(() => scene.remove(effect), 500);
+
+  setTimeout(() => {
+    en.hp -= dmg;
+    en.hitFlash = 0.4;
+    showDamageNumber(en.mesh.position, dmg, false);
+    updateCombatEnemyUI();
+    setCombatMessage('旋风斩！造成了 ' + dmg + ' 点伤害！');
+    addLog('旋风斩对' + enemyName(en.type) + '造成 ' + dmg + ' 伤害', 'damage');
+
+    if (en.hp <= 0) {
+      setTimeout(() => endCombatVictory(en), 800);
+    } else {
+      setTimeout(() => enemyTurn(), 1000);
+    }
+  }, 500);
+}
+
+/* player chose defend */
+function combatDefend() {
+  if (state.combat.busy || !state.combat.playerTurn) return;
+  state.combat.busy = true;
+  state.combat.defending = true;
+  enableActions(false);
+
+  /* small MP recovery */
+  const mpRecover = Math.min(10, state.player.maxMp - state.player.mp);
+  state.player.mp += mpRecover;
+
+  setCombatMessage('摆出防御姿态，减少受到的伤害' + (mpRecover > 0 ? '，恢复了 ' + mpRecover + ' MP' : ''));
+  addLog('进入防御姿态' + (mpRecover > 0 ? '，恢复 ' + mpRecover + ' MP' : ''), 'info');
+
+  setTimeout(() => enemyTurn(), 1000);
+}
+
+/* player chose flee */
+function combatFlee() {
+  if (state.combat.busy || !state.combat.playerTurn) return;
+  state.combat.busy = true;
+  enableActions(false);
+
+  const chance = 0.5 + (state.player.level * 0.03);
+  if (Math.random() < chance) {
+    setCombatMessage('成功逃跑了！');
+    addLog('成功逃离了战斗！', 'info');
+    setTimeout(() => {
+      endCombatRetreat();
+    }, 800);
+  } else {
+    setCombatMessage('逃跑失败！');
+    addLog('逃跑失败！', 'damage');
+    setTimeout(() => enemyTurn(), 1000);
+  }
+}
+
+/* enemy turn */
+function enemyTurn() {
+  const en = state.combat.enemy;
+  if (!en || !en.alive || en.hp <= 0) return;
+  state.combat.playerTurn = false;
+  state.combat.turnCount++;
+  showTurnIndicator(false);
+
+  setTimeout(() => {
+    let rawDmg = Math.max(1, en.atk - state.player.def + Math.floor(Math.random() * 4));
+    if (state.combat.defending) {
+      rawDmg = Math.max(1, Math.floor(rawDmg * 0.4));
+    }
+    state.player.hp -= rawDmg;
+    showDamageNumber(playerGroup.position, rawDmg, false);
+    setCombatMessage(enemyName(en.type) + '发动攻击！你受到了 ' + rawDmg + ' 点伤害' + (state.combat.defending ? '（已减免）' : ''));
+    addLog('受到 ' + rawDmg + ' 点伤害' + (state.combat.defending ? '（防御减免）' : ''), 'damage');
+
+    if (state.player.hp <= 0) {
+      state.player.hp = 0;
+      setTimeout(() => {
+        endCombatRetreat();
+        playerDeath();
+      }, 800);
+    } else {
+      /* back to player turn */
+      state.combat.playerTurn = true;
+      state.combat.busy = false;
+      state.combat.defending = false;
+      showTurnIndicator(true);
+      setCombatMessage('选择你的行动');
+      enableActions(true);
+    }
+  }, 800);
+}
+
+/* combat ends: victory */
+function endCombatVictory(en) {
+  setCombatMessage('胜利！击败了' + enemyName(en.type) + '！');
+  addLog('击败了' + enemyName(en.type) + '！', 'info');
+  killEnemy(en);
+
+  setTimeout(() => {
+    hideTurnPanel();
+    state.combat.active = false;
+    state.combat.enemy = null;
+    state.combat.busy = false;
+  }, 1200);
+}
+
+/* combat ends: retreat */
+function endCombatRetreat() {
+  hideTurnPanel();
+  if (state.combat.enemy) {
+    state.combat.enemy.aiState = 'idle';
+    state.combat.enemy.aiTimer = 3;
+    /* push enemy away so it doesn't re-trigger immediately */
+    const dx = state.combat.enemy.mesh.position.x - playerGroup.position.x;
+    const dz = state.combat.enemy.mesh.position.z - playerGroup.position.z;
+    const d = Math.sqrt(dx * dx + dz * dz) || 1;
+    state.combat.enemy.mesh.position.x += (dx / d) * 8;
+    state.combat.enemy.mesh.position.z += (dz / d) * 8;
+  }
+  state.combat.active = false;
+  state.combat.enemy = null;
+  state.combat.busy = false;
+  /* give player brief invulnerability via cooldown */
+  state.player.combatCooldown = 2;
+}
+
+function killEnemy(en) {
+  en.alive = false;
+  en.mesh.visible = false;
+  const expGain = en.exp;
+  state.player.exp += expGain;
+  state.player.gold += Math.floor(Math.random() * 20) + 5;
+  state.killCounts[en.type] = (state.killCounts[en.type] || 0) + 1;
+  addLog('获得 ' + expGain + ' 经验', 'info');
+  checkQuest();
+  checkLevelUp();
+
+  /* respawn after delay */
+  setTimeout(() => {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 20 + Math.random() * CONFIG.enemy.spawnRadius;
+    en.mesh.position.x = Math.cos(angle) * dist;
+    en.mesh.position.z = Math.sin(angle) * dist;
+    en.mesh.position.y = getTerrainHeight(en.mesh.position.x, en.mesh.position.z);
+    en.hp = en.maxHp;
+    en.alive = true;
+    en.mesh.visible = true;
+    en.aiState = 'idle';
+  }, CONFIG.enemy.respawnTime);
+}
+
+function checkLevelUp() {
+  while (state.player.exp >= state.player.expToLevel) {
+    state.player.exp -= state.player.expToLevel;
+    state.player.level++;
+    state.player.expToLevel = Math.floor(state.player.expToLevel * 1.4);
+    state.player.maxHp += 15;
+    state.player.hp = state.player.maxHp;
+    state.player.maxMp += 8;
+    state.player.mp = state.player.maxMp;
+    state.player.atk += 3;
+    state.player.def += 1;
+    addLog(`升级了！当前等级 Lv.${state.player.level}`, 'levelup');
+  }
+}
+
+function checkQuest() {
+  if (state.currentQuest >= CONFIG.quests.length) return;
+  const quest = CONFIG.quests[state.currentQuest];
+  if (state.killCounts[quest.target] >= quest.count) {
+    state.player.exp += quest.reward.exp;
+    state.player.gold += quest.reward.gold;
+    addLog(`任务完成：${quest.title}！获得 ${quest.reward.exp} 经验和 ${quest.reward.gold} 金币`, 'levelup');
+    checkLevelUp();
+    state.currentQuest++;
+    if (state.currentQuest < CONFIG.quests.length) {
+      addLog(`新任务：${CONFIG.quests[state.currentQuest].title}`, 'info');
+    } else {
+      state.questComplete = true;
+      addLog('所有任务已完成！你是真正的勇者！', 'levelup');
+    }
+  }
+  updateQuestUI();
+}
+
+/* ===== SECTION: interaction ===== */
+function tryInteract() {
+  if (state.player.isDead || state.combat.active) return;
+  if (state.dialogueActive) { advanceDialogue(); return; }
+
+  const pPos = playerGroup.position;
+
+  /* check NPCs — enlarged range for mobile ease */
+  let nearestNPC = null, nearestDist = Infinity;
+  for (let npc of state.npcs) {
+    const dx = npc.mesh.position.x - pPos.x;
+    const dz = npc.mesh.position.z - pPos.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    if (dist < nearestDist) { nearestDist = dist; nearestNPC = npc; }
+  }
+  if (nearestNPC && nearestDist < 8) {
+    startDialogue(nearestNPC);
+    return;
+  }
+
+  /* check chests */
+  for (let chest of state.chests) {
+    if (chest.opened) continue;
+    const dx = chest.mesh.position.x - pPos.x;
+    const dz = chest.mesh.position.z - pPos.z;
+    if (Math.sqrt(dx * dx + dz * dz) < 6) {
+      openChest(chest);
+      return;
+    }
+  }
+}
+
+function startDialogue(npc) {
+  state.dialogueActive = true;
+  state.dialogueTarget = npc;
+  npc.dialogueIndex = 0;
+  document.getElementById('dlg-name').textContent = npc.name;
+  document.getElementById('dlg-text').textContent = npc.dialogues[0];
+  document.getElementById('dialogue').style.display = 'block';
+}
+
+function advanceDialogue() {
+  if (!state.dialogueActive || !state.dialogueTarget) return;
+  state.dialogueTarget.dialogueIndex++;
+  if (state.dialogueTarget.dialogueIndex >= state.dialogueTarget.dialogues.length) {
+    state.dialogueActive = false;
+    state.dialogueTarget = null;
+    document.getElementById('dialogue').style.display = 'none';
+  } else {
+    document.getElementById('dlg-text').textContent = state.dialogueTarget.dialogues[state.dialogueTarget.dialogueIndex];
+  }
+}
+
+function openChest(chest) {
+  chest.opened = true;
+  const goldGain = 20 + Math.floor(Math.random() * 30);
+  const hpGain = Math.min(30, state.player.maxHp - state.player.hp);
+  state.player.gold += goldGain;
+  state.player.hp = Math.min(state.player.maxHp, state.player.hp + 30);
+  addLog(`打开宝箱！获得 ${goldGain} 金币${hpGain > 0 ? `，恢复 ${hpGain} 生命` : ''}`, 'info');
+
+  /* animate */
+  const lid = chest.mesh.children[1];
+  if (lid) {
+    lid.rotation.x = -Math.PI / 3;
+    lid.position.y += 0.3;
+    lid.position.z -= 0.2;
+  }
+  const glow = chest.mesh.getObjectByName('glow');
+  if (glow) glow.material.opacity = 0;
+}
+
+/* ===== SECTION: ui-helpers ===== */
+function isPlayerNearNPC() {
+  if (!playerGroup) return false;
+  const pPos = playerGroup.position;
+  for (let npc of state.npcs) {
+    const dx = npc.mesh.position.x - pPos.x;
+    const dz = npc.mesh.position.z - pPos.z;
+    if (Math.sqrt(dx * dx + dz * dz) < 10) return true;
+  }
+  return false;
+}
+function showDamageNumber(pos, value, crit) {
+  const projected = pos.clone();
+  projected.y += 2.5;
+  projected.project(camera);
+  const x = (projected.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-projected.y * 0.5 + 0.5) * window.innerHeight;
+  const el = document.createElement('div');
+  el.className = 'damage-number' + (crit ? ' crit' : '');
+  el.textContent = '-' + value;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function addLog(text, type) {
+  const log = document.getElementById('combat-log');
+  const el = document.createElement('div');
+  el.className = 'log-entry ' + (type || '');
+  el.textContent = text;
+  log.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+  if (log.children.length > 6) log.children[0].remove();
+}
+
+function updateQuestUI() {
+  if (state.currentQuest >= CONFIG.quests.length) {
+    document.getElementById('quest-title').textContent = '所有任务完成！';
+    document.getElementById('quest-desc').textContent = '你是真正的勇者';
+    document.getElementById('quest-progress').textContent = '★';
+    return;
+  }
+  const quest = CONFIG.quests[state.currentQuest];
+  document.getElementById('quest-title').textContent = quest.title;
+  document.getElementById('quest-desc').textContent = quest.desc;
+  const current = Math.min(state.killCounts[quest.target] || 0, quest.count);
+  document.getElementById('quest-progress').textContent = current + ' / ' + quest.count;
+}
+
+function updateHUD() {
+  const p = state.player;
+  document.getElementById('hp-bar').style.width = (p.hp / p.maxHp * 100) + '%';
+  document.getElementById('mp-bar').style.width = (p.mp / p.maxMp * 100) + '%';
+  document.getElementById('exp-bar').style.width = (p.exp / p.expToLevel * 100) + '%';
+  document.getElementById('hp-text').textContent = Math.floor(p.hp) + '/' + p.maxHp;
+  document.getElementById('mp-text').textContent = Math.floor(p.mp) + '/' + p.maxMp;
+  document.getElementById('exp-text').textContent = p.exp + '/' + p.expToLevel;
+  document.getElementById('lv-text').textContent = 'Lv.' + p.level;
+}
+
+function updateMinimap() {
+  const ctx = minimapCtx;
+  const w = 120, h = 120;
+  ctx.fillStyle = '#1a2a1a';
+  ctx.fillRect(0, 0, w, h);
+
+  const scale = 1.2;
+  const px = playerGroup.position.x;
+  const pz = playerGroup.position.z;
+
+  /* trees */
+  ctx.fillStyle = '#2a5a2a';
+  state.trees.forEach(t => {
+    const mx = (t.x - px) * scale + w / 2;
+    const my = (t.z - pz) * scale + h / 2;
+    if (mx > 0 && mx < w && my > 0 && my < h) {
+      ctx.beginPath(); ctx.arc(mx, my, 2, 0, Math.PI * 2); ctx.fill();
+    }
+  });
+
+  /* enemies */
+  state.enemies.forEach(en => {
+    if (!en.alive) return;
+    const mx = (en.mesh.position.x - px) * scale + w / 2;
+    const my = (en.mesh.position.z - pz) * scale + h / 2;
+    if (mx > 0 && mx < w && my > 0 && my < h) {
+      ctx.fillStyle = en.type === 'slime' ? '#44cc44' : en.type === 'bigSlime' ? '#cc44cc' : '#ddddcc';
+      ctx.beginPath(); ctx.arc(mx, my, 3, 0, Math.PI * 2); ctx.fill();
+    }
+  });
+
+  /* npcs */
+  ctx.fillStyle = '#f0c040';
+  state.npcs.forEach(npc => {
+    const mx = (npc.mesh.position.x - px) * scale + w / 2;
+    const my = (npc.mesh.position.z - pz) * scale + h / 2;
+    if (mx > 0 && mx < w && my > 0 && my < h) {
+      ctx.beginPath(); ctx.arc(mx, my, 3, 0, Math.PI * 2); ctx.fill();
+    }
+  });
+
+  /* chests */
+  state.chests.forEach(c => {
+    if (c.opened) return;
+    const mx = (c.mesh.position.x - px) * scale + w / 2;
+    const my = (c.mesh.position.z - pz) * scale + h / 2;
+    if (mx > 0 && mx < w && my > 0 && my < h) {
+      ctx.fillStyle = '#c08020';
+      ctx.fillRect(mx - 2, my - 2, 4, 4);
+    }
+  });
+
+  /* player arrow */
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(playerGroup.rotation.y);
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(0, -5);
+  ctx.lineTo(-3, 4);
+  ctx.lineTo(3, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ===== SECTION: respawn ===== */
+function respawn() {
+  state.player.hp = state.player.maxHp;
+  state.player.mp = state.player.maxMp;
+  state.player.isDead = false;
+  playerGroup.position.set(0, getTerrainHeight(0, 0), 0);
+  document.getElementById('death-screen').style.display = 'none';
+}
+
+/* ===== SECTION: game-loop ===== */
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  state.time += dt;
+
+  if (!state.player.isDead) {
+    updatePlayer(dt);
+    updateEnemies(dt);
+    updateCooldowns(dt);
+    updatePassiveRegen(dt);
+    updateNPCProximity();
+  }
+  updateCamera(dt);
+  updateAnimations(dt);
+  updateHUD();
+  if (Math.floor(state.time * 10) % 3 === 0) updateMinimap();
+
+  renderer.render(scene, camera);
+}
+
+function updatePlayer(dt) {
+  if (state.dialogueActive || state.combat.active) return;
+
+  let moveX = 0, moveZ = 0;
+  if (keys['KeyW'] || keys['ArrowUp']) moveZ -= 1;
+  if (keys['KeyS'] || keys['ArrowDown']) moveZ += 1;
+  if (keys['KeyA'] || keys['ArrowLeft']) moveX -= 1;
+  if (keys['KeyD'] || keys['ArrowRight']) moveX += 1;
+
+  /* mobile joystick */
+  moveX += joystickDir.x;
+  moveZ += joystickDir.z;
+
+  const isMoving = Math.abs(moveX) > 0.1 || Math.abs(moveZ) > 0.1;
+  const isRunning = keys['ShiftLeft'] || keys['ShiftRight'];
+  const speed = isRunning ? CONFIG.player.runSpeed : CONFIG.player.speed;
+
+  if (isMoving) {
+    const len = Math.sqrt(moveX * moveX + moveZ * moveZ);
+    moveX /= len; moveZ /= len;
+
+    /* move relative to camera */
+    const angle = camYaw;
+    const worldX = moveX * Math.cos(angle) + moveZ * Math.sin(angle);
+    const worldZ = -moveX * Math.sin(angle) + moveZ * Math.cos(angle);
+
+    const newX = playerGroup.position.x + worldX * speed * dt;
+    const newZ = playerGroup.position.z + worldZ * speed * dt;
+
+    /* collision with trees and rocks */
+    let blocked = false;
+    [...state.trees, ...state.rocks].forEach(obj => {
+      const dx = newX - obj.x;
+      const dz = newZ - obj.z;
+      if (Math.sqrt(dx * dx + dz * dz) < obj.r + 0.4) blocked = true;
+    });
+
+    /* world bounds */
+    const bound = CONFIG.world.size * 0.45;
+    if (Math.abs(newX) > bound || Math.abs(newZ) > bound) blocked = true;
+
+    if (!blocked) {
+      playerGroup.position.x = newX;
+      playerGroup.position.z = newZ;
+    }
+
+    /* face movement direction */
+    const targetAngle = Math.atan2(worldX, worldZ);
+    let diff = targetAngle - playerGroup.rotation.y;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    playerGroup.rotation.y += diff * 8 * dt;
+  }
+
+  /* jump */
+  if ((keys['Space'] || keys['KeyJ']) && state.player.isGrounded) {
+    state.player.vy = CONFIG.player.jumpForce;
+    state.player.isGrounded = false;
+  }
+
+  /* gravity */
+  state.player.vy -= 30 * dt;
+  playerGroup.position.y += state.player.vy * dt;
+  const groundY = getTerrainHeight(playerGroup.position.x, playerGroup.position.z);
+  if (playerGroup.position.y <= groundY) {
+    playerGroup.position.y = groundY;
+    state.player.vy = 0;
+    state.player.isGrounded = true;
+  }
+}
+
+function updateEnemies(dt) {
+  const pPos = playerGroup.position;
+  state.enemies.forEach(en => {
+    if (!en.alive) return;
+
+    const dx = pPos.x - en.mesh.position.x;
+    const dz = pPos.z - en.mesh.position.z;
+    const distToPlayer = Math.sqrt(dx * dx + dz * dz);
+
+    /* skip AI if in combat state (frozen) */
+    if (en.aiState === 'combat') {
+      /* face player during combat */
+      en.mesh.rotation.y = Math.atan2(dx, dz);
+      /* terrain height only */
+      en.mesh.position.y = getTerrainHeight(en.mesh.position.x, en.mesh.position.z);
+      /* still do hit flash */
+      if (en.hitFlash > 0) { en.hitFlash -= dt; en.mesh.traverse(child => { if (child.isMesh && child.name !== 'hpBar' && child.name !== 'hpBarBg') { child.material.emissive = child.material.emissive || new THREE.Color(); child.material.emissive.setHex(0xff0000); child.material.emissiveIntensity = en.hitFlash > 0 ? 0.5 : 0; } }); }
+      /* HP bar billboard */
+      const hpBar = en.mesh.getObjectByName('hpBar');
+      if (hpBar) { const r = Math.max(0, en.hp / en.maxHp); hpBar.scale.x = r; hpBar.position.x = -(1-r)*0.59; const hpBg = en.mesh.getObjectByName('hpBarBg'); if (hpBg) hpBg.lookAt(camera.position); hpBar.lookAt(camera.position); }
+      return;
+    }
+
+    /* AI */
+    en.aiTimer -= dt;
+    const nearNPC = isPlayerNearNPC();
+    if (distToPlayer < 12 && !nearNPC) {
+      en.aiState = 'chase';
+    } else if (en.aiTimer <= 0) {
+      en.aiState = 'idle';
+      en.targetX = en.mesh.position.x + (Math.random() - 0.5) * 10;
+      en.targetZ = en.mesh.position.z + (Math.random() - 0.5) * 10;
+      en.aiTimer = 2 + Math.random() * 3;
+    }
+
+    if (en.aiState === 'chase') {
+      const dir = new THREE.Vector3(dx, 0, dz).normalize();
+      en.mesh.position.x += dir.x * en.speed * dt;
+      en.mesh.position.z += dir.z * en.speed * dt;
+      en.mesh.rotation.y = Math.atan2(dx, dz);
+
+      /* trigger turn-based combat when close (not near NPCs) */
+      if (distToPlayer < 3 && !state.combat.active && !state.player.isDead && !state.dialogueActive && !nearNPC) {
+        if (!state.player.combatCooldown || state.player.combatCooldown <= 0) {
+          startCombat(en);
+          return;
+        }
+      }
+    } else {
+      /* wander */
+      const tdx = en.targetX - en.mesh.position.x;
+      const tdz = en.targetZ - en.mesh.position.z;
+      const tdist = Math.sqrt(tdx * tdx + tdz * tdz);
+      if (tdist > 0.5) {
+        en.mesh.position.x += (tdx / tdist) * en.speed * 0.3 * dt;
+        en.mesh.position.z += (tdz / tdist) * en.speed * 0.3 * dt;
+        en.mesh.rotation.y = Math.atan2(tdx, tdz);
+      }
+    }
+
+    /* terrain height */
+    en.mesh.position.y = getTerrainHeight(en.mesh.position.x, en.mesh.position.z);
+
+    /* hit flash */
+    if (en.hitFlash > 0) {
+      en.hitFlash -= dt;
+      en.mesh.traverse(child => {
+        if (child.isMesh && child.name !== 'hpBar' && child.name !== 'hpBarBg') {
+          child.material.emissive = child.material.emissive || new THREE.Color();
+          child.material.emissive.setHex(en.hitFlash > 0 ? 0xff0000 : 0x000000);
+          child.material.emissiveIntensity = en.hitFlash > 0 ? 0.5 : 0;
+        }
+      });
+    }
+
+    /* HP bar update */
+    const hpBar = en.mesh.getObjectByName('hpBar');
+    if (hpBar) {
+      const ratio = Math.max(0, en.hp / en.maxHp);
+      hpBar.scale.x = ratio;
+      hpBar.position.x = -(1 - ratio) * 0.59;
+      /* billboard */
+      const hpBg = en.mesh.getObjectByName('hpBarBg');
+      if (hpBg) hpBg.lookAt(camera.position);
+      hpBar.lookAt(camera.position);
+    }
+  });
+}
+
+function playerDeath() {
+  state.player.isDead = true;
+  state.player.hp = 0;
+  document.getElementById('death-screen').style.display = 'flex';
+}
+
+function updateCooldowns(dt) {
+  if (state.player.combatCooldown > 0) state.player.combatCooldown -= dt;
+}
+
+function updatePassiveRegen(dt) {
+  /* regen 1% HP and 2% MP per second */
+  state.player.hp = Math.min(state.player.maxHp, state.player.hp + state.player.maxHp * 0.01 * dt);
+  state.player.mp = Math.min(state.player.maxMp, state.player.mp + state.player.maxMp * 0.02 * dt);
+}
+
+function updateNPCProximity() {
+  const hint = document.getElementById('npc-hint');
+  if (!playerGroup || state.combat.active || state.dialogueActive) {
+    hint.style.display = 'none';
+    return;
+  }
+  const pPos = playerGroup.position;
+  let nearestNPC = null;
+  let nearestDist = Infinity;
+  for (let npc of state.npcs) {
+    const dx = npc.mesh.position.x - pPos.x;
+    const dz = npc.mesh.position.z - pPos.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    if (dist < 10 && dist < nearestDist) {
+      nearestDist = dist;
+      nearestNPC = npc;
+    }
+  }
+  if (nearestNPC) {
+    const projected = nearestNPC.mesh.position.clone();
+    projected.y += 3.8;
+    projected.project(camera);
+    const sx = (projected.x * 0.5 + 0.5) * window.innerWidth;
+    const sy = (-projected.y * 0.5 + 0.5) * window.innerHeight;
+    hint.style.display = 'block';
+    hint.style.left = sx + 'px';
+    hint.style.top = (sy - 30) + 'px';
+    hint.style.transform = 'translateX(-50%)';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function updateCamera(dt) {
+  if (!playerGroup) return;
+  const dist = CONFIG.camera.distance;
+  const height = CONFIG.camera.height;
+  const target = playerGroup.position.clone();
+  target.y += 2;
+
+  const camX = target.x + Math.sin(camYaw) * Math.cos(camPitch) * dist;
+  const camY = target.y + Math.sin(camPitch) * dist + height;
+  const camZ = target.z + Math.cos(camYaw) * Math.cos(camPitch) * dist;
+
+  camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.1);
+  camera.lookAt(target);
+}
+
+function updateAnimations(dt) {
+  const t = state.time;
+  /* player walk animation */
+  const leftLeg = playerGroup.getObjectByName('leftLeg');
+  const rightLeg = playerGroup.getObjectByName('rightLeg');
+  const leftArm = playerGroup.getObjectByName('leftArm');
+  const isMoving = keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD'] || Math.abs(joystickDir.x) > 0.1 || Math.abs(joystickDir.z) > 0.1;
+  if (leftLeg && rightLeg) {
+    if (isMoving) {
+      leftLeg.rotation.x = Math.sin(t * 8) * 0.5;
+      rightLeg.rotation.x = -Math.sin(t * 8) * 0.5;
+      if (leftArm) leftArm.rotation.x = -Math.sin(t * 8) * 0.3;
+    } else {
+      leftLeg.rotation.x *= 0.9;
+      rightLeg.rotation.x *= 0.9;
+      if (leftArm) leftArm.rotation.x *= 0.9;
+    }
+  }
+
+  /* enemy bounce */
+  state.enemies.forEach(en => {
+    if (!en.alive) return;
+    if (en.type === 'slime' || en.type === 'bigSlime') {
+      const bounce = Math.abs(Math.sin(t * 3 + en.mesh.position.x)) * 0.15;
+      en.mesh.scale.y = (en.scale || 1) * (1 + bounce);
+      en.mesh.scale.x = (en.scale || 1) * (1 - bounce * 0.3);
+      en.mesh.scale.z = (en.scale || 1) * (1 - bounce * 0.3);
+    }
+  });
+
+  /* NPC exclamation bob */
+  state.npcs.forEach(npc => {
+    const mark = npc.mesh.getObjectByName('exclamation');
+    if (mark) {
+      mark.position.y = 3.2 + Math.sin(t * 3) * 0.15;
+      mark.rotation.y = t * 2;
+    }
+  });
+
+  /* clouds drift */
+  scene.traverse(obj => {
+    if (obj.name === 'cloud') {
+      obj.position.x += dt * 0.5;
+      if (obj.position.x > 120) obj.position.x = -120;
+    }
+  });
+
+  /* chest glow pulse */
+  state.chests.forEach(c => {
+    if (c.opened) return;
+    const glow = c.mesh.getObjectByName('glow');
+    if (glow) glow.material.opacity = 0.1 + Math.sin(t * 2) * 0.08;
+  });
+}
+
+/* ===== SECTION: start ===== */
+window.addEventListener('load', init);
+</script>
+</body>
+</html>

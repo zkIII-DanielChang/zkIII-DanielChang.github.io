@@ -1,0 +1,455 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>都市异常调查：把 CoC 的调查感做进竖屏微信小游戏 | Daniel's Blog</title><meta name="author" content="Daniel Chang"><meta name="copyright" content="Daniel Chang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="一个新项目的开场：现代都市题材的竖屏 3D 回合制微信小游戏，核心循环是「调查 → 线索 → 战斗 → 理智变化 → 结算」。本文按开发路径.docx 把范围、十个阶段、当前进度一次讲清楚，并附上前身的那个 Three.js 单文件原型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="都市异常调查：把 CoC 的调查感做进竖屏微信小游戏">
+<meta property="og:url" content="https://zkiii-danielchang.github.io/2026/10/13/%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="Daniel&#39;s Blog">
+<meta property="og:description" content="一个新项目的开场：现代都市题材的竖屏 3D 回合制微信小游戏，核心循环是「调查 → 线索 → 战斗 → 理智变化 → 结算」。本文按开发路径.docx 把范围、十个阶段、当前进度一次讲清楚，并附上前身的那个 Three.js 单文件原型。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zkiii-danielchang.github.io/img/cover.svg">
+<meta property="article:published_time" content="2026-10-13T00:30:00.000Z">
+<meta property="article:modified_time" content="2026-10-13T00:30:00.000Z">
+<meta property="article:author" content="Daniel Chang">
+<meta property="article:tag" content="Cocos Creator">
+<meta property="article:tag" content="回合制战斗">
+<meta property="article:tag" content="微信小游戏">
+<meta property="article:tag" content="游戏开发">
+<meta property="article:tag" content="独立开发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zkiii-danielchang.github.io/img/cover.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "都市异常调查：把 CoC 的调查感做进竖屏微信小游戏",
+  "url": "https://zkiii-danielchang.github.io/2026/10/13/%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/",
+  "image": "https://zkiii-danielchang.github.io/img/cover.svg",
+  "datePublished": "2026-10-13T00:30:00.000Z",
+  "dateModified": "2026-10-13T00:30:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Daniel Chang",
+      "url": "https://zkiii-danielchang.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.svg"><link rel="canonical" href="https://zkiii-danielchang.github.io/2026/10/13/%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cinzel@5/index.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '都市异常调查：把 CoC 的调查感做进竖屏微信小游戏',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/heraldic.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover.svg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Daniel's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">都市异常调查：把 CoC 的调查感做进竖屏微信小游戏</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-chess-rook"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-scroll"></i><span> 典籍</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-tree"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-chess-knight"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">都市异常调查：把 CoC 的调查感做进竖屏微信小游戏</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-13T00:30:00.000Z" title="发表于 2026-10-13 08:30:00">2026-10-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-13T00:30:00.000Z" title="更新于 2026-10-13 08:30:00">2026-10-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/">项目介绍</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="都市异常调查：把-CoC-的调查感做进竖屏微信小游戏"><a href="#都市异常调查：把-CoC-的调查感做进竖屏微信小游戏" class="headerlink" title="都市异常调查：把 CoC 的调查感做进竖屏微信小游戏"></a>都市异常调查：把 CoC 的调查感做进竖屏微信小游戏</h1><blockquote>
+<p>跑过 CoC（克苏鲁的呼唤）的人大概都有这种体验：最紧张的不是打到 BOSS 那一回合，而是你意识到线索就摆在你面前、但你还没读懂它的时候。这个项目想做的，就是把那段时间压缩成单手、竖屏、几分钟一局的微信小游戏。</p>
+</blockquote>
+<div class="note info flat"><p><strong>一句话定位</strong>：现代都市背景的<strong>竖屏 3D 回合制调查小游戏</strong>，魔幻 + 仙侠 + CoC 式调查感；氛围不是纯恐怖，而是「日常城市里出现异常事件」的悬疑感。工程代号 <code>web_rpg</code>，启动页上暂时写着 <strong>《都市异常调查》</strong>。</p>
+</div>
+
+<h2 id="这是个什么游戏"><a href="#这是个什么游戏" class="headerlink" title="这是个什么游戏"></a>这是个什么游戏</h2><p>核心循环一句话：<strong>调查 → 线索 → 战斗 → 理智变化 → 结算</strong>。</p>
+<table>
+<thead>
+<tr>
+<th align="left">环节</th>
+<th align="left">玩家做什么</th>
+<th align="left">为什么要有它</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">🔍 <strong>调查</strong></td>
+<td align="left">在分区城市地图（大学城、旧城区）里点异常点，进调查场景</td>
+<td align="left">把「读场景」变成主要动作，而不是只看剧情弹窗</td>
+</tr>
+<tr>
+<td align="left">🧩 <strong>线索</strong></td>
+<td align="left">攒线索；线索能降低敌人防御、提前暴露弱点、减少理智消耗</td>
+<td align="left">让「看得懂」这件事有实际收益</td>
+</tr>
+<tr>
+<td align="left">⚔️ <strong>战斗</strong></td>
+<td align="left">竖屏 3D 回合制：站位、技能、异常状态、BOSS 弱点</td>
+<td align="left">策略来自信息差，而不是来自数值堆叠</td>
+</tr>
+<tr>
+<td align="left">🧠 <strong>理智</strong></td>
+<td align="left">用强力技能会掉理智；理智过低触发异常状态</td>
+<td align="left">强制玩家权衡「这一发要不要打」</td>
+</tr>
+<tr>
+<td align="left">🎲 <strong>灵感检定</strong></td>
+<td align="left">随机触发，成功给线索或增益，失败掉理智</td>
+<td align="left">给回合制加一点跑团的不确定感</td>
+</tr>
+<tr>
+<td align="left">📜 <strong>结算</strong></td>
+<td align="left">经验、道具，理智恢复或继续污染</td>
+<td align="left">让上一局的后果带进下一局</td>
+</tr>
+</tbody></table>
+<p>角色卡先用一版<strong>简化 CoC 属性</strong>：力量、敏捷、智力、灵感、理智，再加一条<strong>修为&#x2F;灵力</strong>（给道士和仙侠侧内容留口子）。可以直接从 CoC 人物生成器导入简化卡，也可以游戏内创建；玩家同一时间只操作一个角色，其余角色作为自动行动的队友。</p>
+<p>职业构想是五个，第一版只做两个：</p>
+<table>
+<thead>
+<tr>
+<th align="left">职业</th>
+<th align="left">战斗玩法</th>
+<th align="left">实现难度</th>
+<th align="left">版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">战士</td>
+<td align="left">普通攻击 &#x2F; 防御</td>
+<td align="left">低</td>
+<td align="left"><strong>第一版</strong></td>
+</tr>
+<tr>
+<td align="left">道士</td>
+<td align="left">卡牌抽打 &#x2F; 驱散</td>
+<td align="left">中</td>
+<td align="left"><strong>第一版</strong></td>
+</tr>
+<tr>
+<td align="left">猎人</td>
+<td align="left">射击 · 弹珠小游戏</td>
+<td align="left">高</td>
+<td align="left">第二版</td>
+</tr>
+<tr>
+<td align="left">法师</td>
+<td align="left">魔法经验 · 三消</td>
+<td align="left">高</td>
+<td align="left">第二版</td>
+</tr>
+<tr>
+<td align="left">奇械师</td>
+<td align="left">堆叠消除</td>
+<td align="left">高</td>
+<td align="left">第二版</td>
+</tr>
+</tbody></table>
+<p>敌人按题材分五类，第一批只做辨识度高的：</p>
+<div class="tabs"><div class="nav-tabs"><button type="button" class="tab active">都市怪谈</button><button type="button" class="tab">仙侠异变</button><button type="button" class="tab">魔幻生物</button><button type="button" class="tab">异常物品</button><button type="button" class="tab">旧神眷属</button></div><div class="tab-contents"><div class="tab-item-content active"><p>末班地铁乘客、电梯陌生人。成本最低的一批：不需要新模型骨架，靠<strong>场景氛围 + 行为异常</strong>（该有人时没人、该关门时不开）制造不适感。</p></div><div class="tab-item-content"><p>走火入丹的散修、失控法器。用来承接「修为&#x2F;灵力」这条属性线。</p></div><div class="tab-item-content"><p>契约恶魔、炼金傀儡。第一版先不做，避免同时维护三套美术规则。</p></div><div class="tab-item-content"><p>诅咒手机、会说话的自动售货机。<strong>最省事也最容易传播</strong>的一类和「日常物件不对劲」的题材天然适配截图分享。</p></div><div class="tab-item-content"><p>影中人、主线 BOSS <strong>无面者</strong>。留给第一版的收尾，也是唯一带弱点机制的敌人。</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
+<h2 id="三条不可让步的体验铁律"><a href="#三条不可让步的体验铁律" class="headerlink" title="三条不可让步的体验铁律"></a>三条不可让步的体验铁律</h2><div class="note warning flat"><p>这三条是我给自己划的红线，来自「不要把它做成需要研读规则的桌游」。任何功能和它冲突，先砍功能。</p>
+</div>
+
+<ol>
+<li><strong>首次进入即玩</strong>：启动后直接进试玩关卡，用模板角色，不建角色、不选服、不看剧情动画。</li>
+<li><strong>关键路径零阅读</strong>：从进游戏到打完第一场战斗，不需要读一句文字。技能用图标不用长文本，理智用颜色条，暂停按钮常驻。</li>
+<li><strong>单手、可暂停、短局</strong>：回合制没有实时物理，随时能中断，单局时长控制在一两分钟内。</li>
+</ol>
+<h2 id="开发路径：十个阶段"><a href="#开发路径：十个阶段" class="headerlink" title="开发路径：十个阶段"></a>开发路径：十个阶段</h2><div class="note primary flat"><p>排期原则只有一句：<strong>先跑通核心循环 → 再做关卡内容 → 再做养成和联机 → 最后优化变现</strong>。所以第一版是 Demo，不是完整游戏。</p>
+</div>
+
+<div class="timeline "><div class='timeline-item headline'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>开发路径</p>
+</div>
+        </div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>1—3 天 · 阶段 0 项目定型</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>先不写代码，把范围锁死：微信小游戏 · 竖屏、Cocos Creator、体素美术（MagicaVoxel 建模导出 glb）。第一版目标：一个主角 + 三个队友、两个区域、五个异常事件、一个主线 BOSS、完整战斗循环。<strong>不做什么</strong>同样写进文档：完整开放主城、复杂建造、多人实时联机、完整 CoC 规则、复杂剧情分支。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>2—5 天 · 阶段 1 模板项目</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>竖屏分辨率、场景切换（启动页 → 主界面 → 战斗场景）、基础 UI 骨架、资源目录、调查&#x2F;战斗&#x2F;结算三态状态机。这一阶段唯一的验收标准是：点「开始」能进到一个空白战斗场景。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>5—10 天 · 阶段 2 战斗原型</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>第一版最重要的部分。<strong>只做一个主角 + 一个敌人</strong>：回合制流程（我方 → 敌方 → 结算）、四个技能按钮、理智值、灵感检定、简单敌人 AI（普攻 &#x2F; 随机技能 &#x2F; 血量低于阈值换招）。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>5—8 天 · 阶段 3 调查与线索</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>城市分区地图、每区域 2—3 个异常点、调查得线索、线索反哺战斗、战斗结算影响理智。剧情分支先不做，只做「线索多 → 战斗简单；线索少 → 战斗难」。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>5—7 天 · 阶段 4 角色与角色卡</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>简化版 CoC 角色卡、创建角色、选职业、战斗内显示状态、队友自动行动。更换队友、真人队友、职业转换推到后期。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>7—12 天 · 阶段 5 关卡内容</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>大学城 2 个异常事件 + 旧城区 2 个 + 主线 BOSS 1 个，每个事件都含调查点、线索、战斗、结算。剧情走<strong>明确单线</strong>：大学城出现异常 → 旧城区线索指向同一源头 → 主角团发现旧神眷属 → 击败 BOSS → 留更大悬念。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>3—5 天 · 阶段 6 主界面与新手体验</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>把「首次进入快、不需要读文字」落到界面上：模板角色直接开局、按钮大、图标清楚、色条理智、随时暂停、结束直接回地图或结算页。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>并行推进 · 阶段 7 体素美术管线</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>和程序并行：MagicaVoxel 建模 → 导出 glb → 导入 Cocos Creator → 验证动画&#x2F;材质&#x2F;光照 → 统一配色 → 大学城、旧城区各一个小型体素场景。第一版不求精细，<strong>只求风格统一、识别度高</strong>。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>3—5 天 · 阶段 9 测试与打包</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>找同学试玩，重点看六件事：首次进入够不够快、不读文字能不能玩、战斗能不能单手、理智系统好不好理解、线索是否真的影响战斗、包体是否超标。然后根据反馈<strong>删复杂度，而不是继续加系统</strong>。</p>
+</div>
+      </div><div class='timeline-item'>
+        <div class='timeline-item-title'>
+          <div class='item-circle'><p>第二版再做 · 阶段 8 养成与主城</p>
+</div>
+        </div>
+        <div class='timeline-item-content'><p>年龄系统、人生履历、职业转换、赚钱、主城自由移动、场景破坏、建造、GTA 式探索。这些内容都很好，但都会拖慢 Demo；第一版只需要一个「能接任务、换角色、看线索、进关卡」的简单主城。</p>
+</div>
+      </div></div>
+
+<h2 id="现状对照：走到哪一步了"><a href="#现状对照：走到哪一步了" class="headerlink" title="现状对照：走到哪一步了"></a>现状对照：走到哪一步了</h2><div class="note success flat"><p>截至发稿：<strong>阶段 0 已完成，阶段 1 进行中</strong>，阶段 2 的战斗原型还没动。下面这份清单是从工程里数出来的，不是计划。</p>
+</div>
+
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 范围锁死，「第一版不做」清单成文</li>
+<li><input checked="" disabled="" type="checkbox"> Cocos Creator <strong>3.8.8</strong> 工程建立，目录分层（<code>Scenes</code> &#x2F; <code>Scripts</code> &#x2F; <code>Source</code> &#x2F; <code>Models</code> &#x2F; <code>Materials</code> &#x2F; <code>Effects</code> &#x2F; <code>Textures</code>）</li>
+<li><input checked="" disabled="" type="checkbox"> 竖屏设计分辨率 <strong>720×1280</strong>、适配宽度（写进 <code>settings/v2/packages/project.json</code>）</li>
+<li><input checked="" disabled="" type="checkbox"> 启动页 <code>Splash.scene</code>：标题副标题淡入 → 后台预加载 → 「开始调查」→ 黑场淡出切 3D 场景</li>
+<li><input checked="" disabled="" type="checkbox"> 第一个 3D 场景能进（目前仍是模板的 <code>ThirdPersonCharacter.scene</code>）</li>
+<li><input checked="" disabled="" type="checkbox"> 场景文件与 <code>.meta</code> 的生成校验脚本链</li>
+<li><input disabled="" type="checkbox"> 主界面、战斗 UI（头像 &#x2F; 理智条 &#x2F; 技能按钮）</li>
+<li><input disabled="" type="checkbox"> 调查 &#x2F; 战斗 &#x2F; 结算状态机</li>
+<li><input disabled="" type="checkbox"> 微信小游戏首次构建（还没有 <code>build/</code> 目录）</li>
+<li><input disabled="" type="checkbox"> 体素角色与体素场景（当前模型是模板的 <code>highPoly_female.fbx</code>、<code>Stairs.glb</code>、<code>Terrain.terrain</code>、600KB 天空盒 HDR）</li>
+</ul>
+<p>工程结构大致是这样：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">D:/web_rpg/web_rpg</span><br><span class="line">├── assets/Scenes/Splash.scene                 启动页（纯 2D，竖屏）</span><br><span class="line">├── assets/Scenes/ThirdPersonCharacter.scene   第一个 3D 场景（暂用模板）</span><br><span class="line">├── assets/Scripts/Core/GameConfig.ts          启动流程参数（目标场景 / 时长 / 版本号）</span><br><span class="line">├── assets/Scripts/UI/SplashController.ts      淡入 → 预加载 → 进入</span><br><span class="line">├── assets/Scripts/UI/UiKit.ts                 纯色兜底 / 淡入淡出 / 等待</span><br><span class="line">├── assets/Source/&#123;Camera,Gameplay,Input,UI,Utils&#125;  模板带来的第三人称控制与调试代码</span><br><span class="line">└── ../tools/*.js                              场景与 meta 的生成、校验脚本</span><br></pre></td></tr></table></figure>
+
+<details class="toggle" ><summary class="toggle-button" style="">点开看：启动页里那几个「防翻车」的小设计</summary><div class="toggle-content"><p>这些东西不值一行代码的炫耀，但每一条都对应一个真实会发生的事故：</p>
+<ul>
+<li><strong>启动页故意不引用任何大贴图。</strong> 模板 3D 场景的天空盒 HDR 有 600KB，启动页一个都不加载，整页只有一张 64×64 的纯白图，所以首屏很快。</li>
+<li><strong>贴图丢了也不会白屏。</strong> <code>UiKit.ensureSolidSprites()</code> 在启动时检查所有 Sprite，没有 SpriteFrame 的自动补上引擎内置的 <code>white-texture</code>，颜色由 Sprite 自己的 Color 决定。</li>
+<li><strong>预加载失败不卡死。</strong> 超时或失败会提示「场景未加入构建列表」，玩家仍然能手动点进场景——对小游戏来说，卡在第一屏等于直接流失。</li>
+<li><strong>进度条「编辑器所见即运行时所得」。</strong> <code>Bar</code> 节点锚点写死 <code>(0, 0.5)</code>、x 取负半宽，正好是 <code>cc.ProgressBar</code> 运行时会摆的位置，不会有跳变。</li>
+<li><strong><code>Splash.scene</code> 是脚本生成的，不是手敲 JSON。</strong> Cocos 场景里脚本组件的 <code>__type__</code> 用的是<strong>压缩 uuid</strong>，<code>tools/cocos-uuid.js</code> 负责压缩与解压，<code>validate-scene.js</code> 校验引用、父子关系、Canvas 与相机连线、图层可见性。改界面请在编辑器里改，重跑生成器会覆盖手动调整。</li>
+</ul>
+</div></details>
+
+<h2 id="前身原型：一个-Three-js-的单文件-3D-RPG"><a href="#前身原型：一个-Three-js-的单文件-3D-RPG" class="headerlink" title="前身原型：一个 Three.js 的单文件 3D RPG"></a>前身原型：一个 Three.js 的单文件 3D RPG</h2><p>在定下 Cocos + 微信小游戏之前，我先用 Three.js 写了一个单文件原型验证「第三人称探索 + 回合制战斗」的手感。它跑通了几件事：靠近敌人自动切入回合制、回合内四个行动选项、HP&#x2F;MP&#x2F;EXP 与任务计数、死亡复活。</p>
+<div class="tg-play">
+  <div class="tg-play-bar">
+    <span class="tg-play-title">🕹 前身原型 · 3D RPG 冒险（Three.js 单文件）</span>
+    <a class="tg-play-link" href="/rpg/" target="_blank" rel="noopener">全屏打开 ↗</a>
+  </div>
+  <div class="tg-play-frame">
+    <iframe src="/rpg/" title="3D RPG 冒险 · 前身原型" loading="lazy" allowfullscreen></iframe>
+  </div>
+</div>
+
+<p>它的局限也很明确：吃键鼠（WASD + 鼠标视角），手机上基本只能看个意思；没有调查层、没有理智系统、没有线索；模型是程序几何体拼的；还依赖 CDN 加载 three.js（<code>three@0.160.0</code> 的 UMD 包，官方已把 <code>three.min.js</code> 标为 deprecated，r160 还能用，但真要长期挂着得换成 ES Module）。<strong>它的价值到「证明回合制切换成立」为止就结束了</strong>，主角、敌人、地图在新项目里全部推倒重来。</p>
+<h2 id="我给自己定的三条戒律"><a href="#我给自己定的三条戒律" class="headerlink" title="我给自己定的三条戒律"></a>我给自己定的三条戒律</h2><ul>
+<li><strong>一次只加一个系统</strong>，先让它能玩，再让它好玩。</li>
+<li>想加年龄 &#x2F; 主城 &#x2F; 建造 &#x2F; GTA 式探索时，<strong>写进第二版清单，不动第一版</strong>。</li>
+<li>试玩反馈回来后<strong>删复杂度</strong>，而不是继续加系统。</li>
+</ul>
+<h2 id="后续路线图"><a href="#后续路线图" class="headerlink" title="后续路线图"></a>后续路线图</h2><ul>
+<li><input checked="" disabled="" type="checkbox"> 启动流程与竖屏配置</li>
+<li><input disabled="" type="checkbox"> <strong>战斗循环</strong>（一个主角 + 一个敌人）</li>
+<li><input disabled="" type="checkbox"> <strong>理智值 + 灵感检定</strong></li>
+<li><input disabled="" type="checkbox"> 调查 + 线索（含线索对战斗的实际影响）</li>
+<li><input disabled="" type="checkbox"> 角色卡 + 两个职业</li>
+<li><input disabled="" type="checkbox"> 两个区域 + 五个异常事件</li>
+<li><input disabled="" type="checkbox"> 主线 BOSS 战（弱点机制 + 理智压力）</li>
+<li><input disabled="" type="checkbox"> 主界面与新手流程</li>
+<li><input disabled="" type="checkbox"> 体素美术统一（MagicaVoxel → glb 管线）</li>
+<li><input disabled="" type="checkbox"> 微信小游戏构建与包体&#x2F;首屏实测</li>
+<li><input disabled="" type="checkbox"> 第二版：养成、主城、联机</li>
+</ul>
+<div class="note warning flat"><p>四个目前还没答案、需要在阶段 2—3 里验证的风险：<strong>微信小游戏的包体上限</strong>（3D 场景 + 天空盒很容易超）；<strong>低端机性能</strong>（Draw Call、骨骼数、内存峰值，目标是稳定 30fps）；<strong>理智系统能不能被看懂</strong>（不掉血而掉一个看不见的条，玩家可能完全不 care）；<strong>题材审核</strong>（都市怪谈 + CoC 的恐怖氛围在小游戏平台的内容规范下要克制到什么程度）。</p>
+</div>
+
+<p>如果你更想快点看到一个能发给同学的东西，那还有更狠的砍法：<strong>一个主角、一个队友、一个区域、三个异常事件、一个 BOSS</strong>。按这个范围，一两周就能拿出可试玩 Demo。</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>第一批玩家就是我的同学——所以题材必须让他们有共鸣、能分享、单局短、能互坑互夸。这个项目能不能成，不取决于我设计了多完整的系统，而取决于他们愿不愿意在课间把那三分钟打完。</p>
+<blockquote><p>线索越多，战斗越简单；规则越少，玩家越多。</p>
+</blockquote>
+
+<hr>
+<p>内容由 AI 生成</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io">Daniel Chang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://zkiii-danielchang.github.io/2026/10/13/%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/">https://zkiii-danielchang.github.io/2026/10/13/%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://zkiii-danielchang.github.io" target="_blank">Daniel's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/">游戏开发</a><a class="post-meta__tags" href="/tags/Cocos-Creator/">Cocos Creator</a><a class="post-meta__tags" href="/tags/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E6%B8%B8%E6%88%8F/">微信小游戏</a><a class="post-meta__tags" href="/tags/%E5%9B%9E%E5%90%88%E5%88%B6%E6%88%98%E6%96%97/">回合制战斗</a><a class="post-meta__tags" href="/tags/%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91/">独立开发</a></div><div class="post-share"><div class="social-share" data-image="/img/cover.svg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">训练营项目提交与复盘：给旧项目加一个 AI 执政官</div></div><div class="info-2"><div class="info-item-1">GitHub 用户名：zkIII-DanielChang 赛道群内微信昵称：智感2502张大川  选择路线路线三（旧项目 &#x2F; 闭源项目维护展示类） 项目简介《铁冠诸侯》(Lords of Iron Crowns) 是一款基于 JavaScript 的网页大战略游戏，双端适配（桌面 &#x2F; 移动），玩法参照《十字军之王》：经营领地、征兵作战、外交博弈、吞并邻国。游戏本体为单文件 JS（index.html，约 3900 行），是训练营开始前的既有项目。 训练营期间的增量工作是为这个既有游戏从零构建 AI 执政官 RegentAgent——基于 HelloAgents 框架的...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Daniel Chang</div><div class="author-info-description">Daniel Chang 的纹章骑士博客 —— 技术、阅读与旅途见闻</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zkIII-DanielChang" target="_blank" title="GitHub"><i class="fab fa-github" style="color: #1e3a5f;"></i></a><a class="social-icon" href="mailto:daniel-chang@live.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #8b1a1a;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%EF%BC%9A%E6%8A%8A-CoC-%E7%9A%84%E8%B0%83%E6%9F%A5%E6%84%9F%E5%81%9A%E8%BF%9B%E7%AB%96%E5%B1%8F%E5%BE%AE%E4%BF%A1%E5%B0%8F%E6%B8%B8%E6%88%8F"><span class="toc-number">1.</span> <span class="toc-text">都市异常调查：把 CoC 的调查感做进竖屏微信小游戏</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%99%E6%98%AF%E4%B8%AA%E4%BB%80%E4%B9%88%E6%B8%B8%E6%88%8F"><span class="toc-number">1.1.</span> <span class="toc-text">这是个什么游戏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E6%9D%A1%E4%B8%8D%E5%8F%AF%E8%AE%A9%E6%AD%A5%E7%9A%84%E4%BD%93%E9%AA%8C%E9%93%81%E5%BE%8B"><span class="toc-number">1.2.</span> <span class="toc-text">三条不可让步的体验铁律</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%B7%AF%E5%BE%84%EF%BC%9A%E5%8D%81%E4%B8%AA%E9%98%B6%E6%AE%B5"><span class="toc-number">1.3.</span> <span class="toc-text">开发路径：十个阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%B0%E7%8A%B6%E5%AF%B9%E7%85%A7%EF%BC%9A%E8%B5%B0%E5%88%B0%E5%93%AA%E4%B8%80%E6%AD%A5%E4%BA%86"><span class="toc-number">1.4.</span> <span class="toc-text">现状对照：走到哪一步了</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%BA%AB%E5%8E%9F%E5%9E%8B%EF%BC%9A%E4%B8%80%E4%B8%AA-Three-js-%E7%9A%84%E5%8D%95%E6%96%87%E4%BB%B6-3D-RPG"><span class="toc-number">1.5.</span> <span class="toc-text">前身原型：一个 Three.js 的单文件 3D RPG</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E7%BB%99%E8%87%AA%E5%B7%B1%E5%AE%9A%E7%9A%84%E4%B8%89%E6%9D%A1%E6%88%92%E5%BE%8B"><span class="toc-number">1.6.</span> <span class="toc-text">我给自己定的三条戒律</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E7%BB%AD%E8%B7%AF%E7%BA%BF%E5%9B%BE"><span class="toc-number">1.7.</span> <span class="toc-text">后续路线图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-number">1.8.</span> <span class="toc-text">最后</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/10/13/%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/" title="都市异常调查：把 CoC 的调查感做进竖屏微信小游戏"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="都市异常调查：把 CoC 的调查感做进竖屏微信小游戏"/></a><div class="content"><a class="title" href="/2026/10/13/%E9%83%BD%E5%B8%82%E5%BC%82%E5%B8%B8%E8%B0%83%E6%9F%A5%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/" title="都市异常调查：把 CoC 的调查感做进竖屏微信小游戏">都市异常调查：把 CoC 的调查感做进竖屏微信小游戏</a><time datetime="2026-10-13T00:30:00.000Z" title="发表于 2026-10-13 08:30:00">2026-10-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="训练营项目提交与复盘：给旧项目加一个 AI 执政官"/></a><div class="content"><a class="title" href="/2026/09/30/%E8%AE%AD%E7%BB%83%E8%90%A5%E9%A1%B9%E7%9B%AE%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%A4%8D%E7%9B%98/" title="训练营项目提交与复盘：给旧项目加一个 AI 执政官">训练营项目提交与复盘：给旧项目加一个 AI 执政官</a><time datetime="2026-09-30T12:35:12.000Z" title="发表于 2026-09-30 20:35:12">2026-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/" title="铁冠诸侯 · AI 执政官 RegentAgent"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="铁冠诸侯 · AI 执政官 RegentAgent"/></a><div class="content"><a class="title" href="/2026/09/30/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AFAI%E6%89%A7%E6%94%BF%E5%AE%98/" title="铁冠诸侯 · AI 执政官 RegentAgent">铁冠诸侯 · AI 执政官 RegentAgent</a><time datetime="2026-09-30T12:08:34.000Z" title="发表于 2026-09-30 20:08:34">2026-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/" title="铁冠诸侯：一个为了好玩而做的大战略游戏"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="铁冠诸侯：一个为了好玩而做的大战略游戏"/></a><div class="content"><a class="title" href="/2026/09/27/%E9%93%81%E5%86%A0%E8%AF%B8%E4%BE%AF%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/" title="铁冠诸侯：一个为了好玩而做的大战略游戏">铁冠诸侯：一个为了好玩而做的大战略游戏</a><time datetime="2026-09-27T04:50:00.000Z" title="发表于 2026-09-27 12:50:00">2026-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Daniel Chang</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div></div></body></html>
