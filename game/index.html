@@ -2,14 +2,17 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>拆解者 · SuperNB Plane Battle</title>
-  <script type="module" crossorigin src="./assets/index-D4Smqb5O.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-B28olykS.css">
+  <script type="module" crossorigin src="./assets/index-B0-z8Eoz.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CPmypGT1.css">
 </head>
 <body>
 <div id="app">
   <canvas id="game"></canvas>
+  <div id="joy" class="hidden"><div id="joyknob"></div></div>
+  <button id="dashbtn" class="hidden">&#9889;</button>
+  <div id="rotate" class="hidden">&#128241; 横屏体验更好，请旋转设备</div>
   <div id="hud" class="hidden">
     <div id="hpwrap"><div id="hpbar"></div></div>
     <div id="combo">0x</div>
@@ -21,10 +24,15 @@
     <h1>拆 解 者</h1>
     <p class="sub">SUPER NB · PLANE BATTLE</p>
     <p class="tag">击碎 BOSS · 掠夺它的零件 · 拼到你自己身上</p>
-    <div class="keys">
+    <div class="keys" id="keys">
       <div><kbd>WASD / 方向键</kbd><span>移动</span></div>
       <div><kbd>自动开火</kbd><span>朝最近敌机</span></div>
       <div><kbd>空格</kbd><span>冲刺</span></div>
+    </div>
+    <div class="keys" id="keystouch" style="display:none">
+      <div><kbd>&#128064; 左半屏拖动</kbd><span>移动战机</span></div>
+      <div><kbd>&#9889; 右下按钮</kbd><span>冲刺</span></div>
+      <div><kbd>自动开火</kbd><span>锁定最近敌机</span></div>
     </div>
     <button id="startBtn">开始游戏</button>
     <div id="bestline"></div>
